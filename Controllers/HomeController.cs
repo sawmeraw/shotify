@@ -6,11 +6,13 @@ namespace Shotify.Controllers;
 
 public class HomeController : Controller
 {
+    [Route("/")]
     public IActionResult Index()
     {
         return View();
     }
 
+    [Route("/privacy")]
     public IActionResult Privacy()
     {
         return View();

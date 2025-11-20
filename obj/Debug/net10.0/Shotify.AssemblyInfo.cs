@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Shotify")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3579cdfcc670cf87eb3765f946e2173c9f0d03a0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8a82be6a1a96adf7c08adce14dd31f2f259e96ab")]
 [assembly: System.Reflection.AssemblyProductAttribute("Shotify")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Shotify")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -102,7 +102,7 @@ public class URLService : IURLService
         var urlPatterns = _brandUrlRepo.GetPatterns(brandId);
         if (urlPatterns == null)
         {
-            return null;
+            throw new Exception("No Url exceptions found in the product code");
         }
 
         var results = urlPatterns

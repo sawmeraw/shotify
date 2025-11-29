@@ -1,7 +1,149 @@
-﻿@{
-    ViewData["Title"] = "Shotify";
+﻿@using Shotify.Models.DTOs
+@model List<BrandListItemDTO>
+
+@{
+    ViewData["Title"] = "Home - Shotify";
+    ViewData["PageHeading"] = "Image Search";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Hello World</h1>
+
+<div id="search-container">
+    <div id="search-controller" class="d-flex gap-4">
+        <div id="option-container">
+            @foreach (var item in Model)
+            {
+                <div class="option-btn-container">
+                    <button type="button" data-name="@item.Id" class="btn btn-dark btn-outline-dark">
+                        @item.Name
+                    </button>
+                </div>
+            }
+
+        </div>
+        <div id="search-field" class=" d-flex-col gap-2">
+            <p id="selectedBrand" class="mb-4 fw-bold fs-5">Select a brand.</p>
+            <input type="text" id="productCode" class="form-control mb-2 w-75" placeholder="Product code" required />
+            <button type="button" id="searchBtn" class="btn btn-dark text-white">Search</button>
+        </div>
+    </div>
+
+
+    <div id="preview-container" class="d-flex-col gap-2">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold fs-5 mb-0">Preview</h2>
+            <button class="btn btn-dark fw-bold rounded-md" onclick="downloadPreviewImages()">
+                Download
+            </button>
+        </div>
+        <div id="preview-images" class="d-flex gap-2 flex-wrap"></div>
+    </div>
 </div>
+
+
+@section Scripts {
+    <script>
+
+        if (!window.App) {
+            window.App = {}
+        }
+
+        window.App.preview = {
+            images: [],
+            loading: false,
+            error: null
+        };
+
+        $(function () {
+
+            let searchBtn = $("#searchBtn");
+
+            $("#option-container .option-btn-container button").on("click", function () {
+                $("#option-container .option-btn-container button").removeClass("selected");
+
+                $(this).addClass("selected");
+
+                let selectedText = $(this).html();
+                $("#selectedBrand").text(selectedText);
+            })
+
+            searchBtn.on("click", function () {
+                let selectedBrandBtn = $("#option-container .option-btn-container button.selected");
+                if (selectedBrandBtn.length == 0) {
+                    $("#selectedBrand").addClass("highlight");
+                    setTimeout(function () {
+                        $("#selectedBrand").removeClass("highlight");
+                    }, 3000);
+                } else {
+                    let brandId = selectedBrandBtn.data("name");
+                    let productCode = $("#productCode").val();
+                    searchImages(brandId, productCode);
+                }
+            })
+        })
+
+        async function searchImages(brandId, productCode) {
+            setPreviewState({ loading: true, error: null, images: [] });
+            try {
+                const response = await fetch(`/api/search?brandId=${encodeURIComponent(brandId)}&productCode=${encodeURIComponent(productCode)}`);
+                if (!response.ok) {
+                    throw new Error(`Oops! Something went wrong.`);
+                }
+                const data = await response.json();
+                setPreviewState({ loading: false, images: data, error: null });
+
+            } catch (error) {
+                setPreviewState({ loading: false, error: error.message });
+            }
+        }
+
+        function renderPreview() {
+            const container = $("#preview-images");
+            container.empty();
+
+            if (window.App.preview.loading) {
+                container.html(`
+                                                                                                                        <div class="d-flex justify-content-center align-items-center" style="height:200px;">
+                                                                                                                            <div class="spinner-border text-info"></div>
+                                                                                                                        </div>
+                                                                                                                        `);
+            } else if (window.App.preview.error) {
+                container.html(`<div class='text-danger'>${window.App.preview.error}</div>`);
+            } else if (window.App.preview.images.length > 0) {
+                window.App.preview.images.forEach(img => {
+                    container.append(`<img src="${img}" class="preview-img" />`);
+                });
+            } else {
+                container.html("<div class='text-muted'>No images found.</div>");
+            }
+        }
+
+        function setPreviewState(newState) {
+            window.App.preview = { ...window.App.preview, ...newState };
+            renderPreview();
+        }
+
+        async function downloadPreviewImages() {
+            let images = window.App.preview.images;
+            if (images.length > 0) {
+                for (const image of images) {
+                    try {
+                        const response = await fetch(image);
+                        const blob = await response.blob();
+                        const url = URL.createObjectURL(blob);
+
+                        const a = document.createElement("a");
+                        a.href = url;
+                        a.download = image.split("/").pop();
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+
+                        URL.revokeObjectURL(url);
+                    } catch (err) {
+                        console.error("Error downloading:", image, err);
+                    }
+                }
+            }
+        }
+    </script>
+}

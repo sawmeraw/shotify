@@ -1,0 +1,118 @@
+﻿@model ViewModels.EditBrandViewModel
+
+@{
+    ViewData["Title"] = "Manage Brands";
+    ViewData["PageHeading"] = "Edit Brand";
+    ViewData["EntityName"] = @Model.Name;
+}
+
+<form action="/admin/brand/@Model.Id" method="post">
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    <div class="mb-3">
+        <label for="Name" class="form-label">Brand Name</label>
+        <input type="text" id="Name" name="Name" class="form-control" value="@Model.Name" required>
+    </div>
+
+    <div class="row">
+        <div id="errorRow1" class="text-danger fw-bold">
+            Only one of these is allowed.
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="ProductCodeCutOffChar" class="form-label">Code Cut-Off Character (Optional)</label>
+                <input type="text" id="ProductCodeCutOffChar" name="ProductCodeCutOffChar" class="form-control"
+                    value="@Model.ProductCodeCutOffChar">
+                <div class="form-text">
+                    If set, everything *after* this character is ignored. E.g., `12345_color` becomes `12345`.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+
+            <div class="mb-3">
+                <label for="ProductCodeSliceOffset" class="form-label">Code Slice Offset (Optional)</label>
+                <input type="number" id="ProductCodeSliceOffset" name="ProductCodeSliceOffset" class="form-control"
+                    value="@Model.ProductCodeSliceOffset">
+                <div class="form-text">
+                    If greater than zero, slices the code starting from this index. Useful for removing prefixes.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="errorRow2" class="text-danger fw-bold">
+            Only one of these is allowed.
+        </div>
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="ProductCodeDelimiterChar" class="form-label">Code Delimiter Character (Optional)</label>
+                <input type="text" id="ProductCodeDelimiterChar" name="ProductCodeDelimiterChar" class="form-control"
+                    value="@Model.ProductCodeDelimiterChar">
+                <div class="form-text">
+                    Character used to split the product code into two parts.
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="mb-3">
+                <label for="ProductCodeDelimiterOffset" class="form-label">Delimiter Offset (Optional)</label>
+                <input type="number" id="ProductCodeDelimiterOffset" name="ProductCodeDelimiterOffset"
+                    class="form-control" value="@Model.ProductCodeDelimiterOffset">
+                <div class="form-text">
+                    If a delimiter is used, this specifies which part (0-indexed) of the split code is the main ID.
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+        <button id="submitBtn" type="submit" class="btn btn-shotify-primary px-4">Save Changes</button>
+        <a href="/Admin/Brands" class="btn btn-secondary px-4">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(function () {
+            function enforceConfigRules() {
+                let cutOffChar = $("#ProductCodeCutOffChar").val().trim();
+                let sliceOffset = $("#ProductCodeSliceOffset").val().trim();
+                let delimChar = $("#ProductCodeDelimiterChar").val().trim();
+                let delimOffset = $("#ProductCodeDelimiterOffset").val().trim();
+
+                let errorRow1 = !!(cutOffChar && sliceOffset);
+                let errorRow2 = !!(delimChar && delimOffset);
+
+                if (errorRow1) {
+                    $("#errorRow1").stop(true, true).slideDown(200);
+                    $("#errorRow1").parent().addClass("bg-warning-subtle");
+                } else {
+                    $("#errorRow1").stop(true, true).slideUp(200);
+                    $("#errorRow1").parent().removeClass("bg-warning-subtle");
+                }
+
+                if (errorRow2) {
+                    $("#errorRow2").parent().addClass("bg-warning-subtle");
+                    $("#errorRow2").stop(true, true).slideDown(200);
+                } else {
+                    $("#errorRow2").stop(true, true).slideUp(200);
+                    $("#errorRow2").parent().removeClass("bg-warning-subtle");
+                }
+
+                $("#submitBtn").prop("disabled", errorRow1 || errorRow2);
+            }
+            $("#ProductCodeCutOffChar, #ProductCodeSliceOffset, #ProductCodeDelimiterChar, #ProductCodeDelimiterOffset").on("input blur", enforceConfigRules);
+
+            enforceConfigRules();
+        })
+    </script>
+}

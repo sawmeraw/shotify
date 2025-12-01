@@ -1,4 +1,5 @@
 using System;
+using Models.DTOs;
 using Shotify.Models;
 
 namespace Shotify.Data;
@@ -6,4 +7,5 @@ namespace Shotify.Data;
 public interface IBrandImageUrlParamRepository
 {
     public List<BrandImageUrlParam> GetParams(int brandId);
+    public void UpdateParams(List<BrandImageUrlParam> items);
 }

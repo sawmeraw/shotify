@@ -19,4 +19,6 @@ public class BrandImageUrlParamRepository : IBrandImageUrlParamRepository
         var brandParams = _conn.Query<BrandImageUrlParam>("SELECT * FROM BrandImageUrlParams WHERE BrandId  = @BrandId ORDER BY \"Order\"", new { BrandId = brandId });
         return brandParams.ToList();
     }
+
+
 }

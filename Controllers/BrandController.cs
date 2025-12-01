@@ -2,23 +2,30 @@ using Microsoft.AspNetCore.Mvc;
 using Shotify.Data;
 using ViewModels;
 using Shotify.Models.DTOs;
+using Shotify.Services;
 
 
 namespace Shotify.Controllers
 {
     public class BrandController : Controller
     {
-        private readonly IBrandRepository _repo;
-        public BrandController(IBrandRepository repo)
+        private readonly IBrandRepository _brandRepo;
+        private readonly IBrandImageUrlRepository _urlRepo;
+        private readonly IBrandImageUrlParamRepository _paramRepo;
+        public BrandController(IBrandRepository brandRepo, IBrandImageUrlRepository urlRepo, IBrandImageUrlParamRepository paramRepo)
         {
-            _repo = repo;
+            _brandRepo = brandRepo;
+            _urlRepo = urlRepo;
+            _paramRepo = paramRepo;
         }
 
         [Route("/admin/brand/{id}")]
         [HttpGet]
         public IActionResult Index(int id)
         {
-            var brand = _repo.GetBrandById(id);
+            var brand = _brandRepo.GetBrandById(id);
+            var brandImageUrls = _urlRepo.GetBrandImageUrlParams(id);
+            var brandUrlParms = _paramRepo.GetParams(id);
             var viewModel = new EditBrandViewModel
             {
                 Id = brand.Id,
@@ -26,8 +33,18 @@ namespace Shotify.Controllers
                 ProductCodeCutOffChar = brand.ProductCodeCutOffChar,
                 ProductCodeDelimiterChar = brand.ProductCodeDelimiterChar,
                 ProductCodeDelimiterOffset = brand.ProductCodeDelimiterOffset,
-                ProductCodeSliceOffset = brand.ProductCodeSliceOffset
+                ProductCodeSliceOffset = brand.ProductCodeSliceOffset,
             };
+
+            if (brandImageUrls != null)
+            {
+                viewModel.ImageUrls = brandImageUrls;
+            }
+
+            if (brandUrlParms != null)
+            {
+                viewModel.UrlParams = brandUrlParms;
+            }
 
             return View(viewModel);
         }
@@ -38,10 +55,25 @@ namespace Shotify.Controllers
         {
             if (!ModelState.IsValid)
             {
-                return View(dto);
+                return BadRequest(ModelState);
             }
 
-            _repo.UpdateBrand(id, dto);
+            _brandRepo.UpdateBrand(id, new UpdateBrandDTO
+            {
+                Id = id,
+                Name = dto.Name,
+                ProductCodeCutOffChar = dto.ProductCodeCutOffChar,
+                ProductCodeDelimiterChar = dto.ProductCodeDelimiterChar,
+                ProductCodeDelimiterOffset = dto.ProductCodeDelimiterOffset,
+                ProductCodeSliceOffset = dto.ProductCodeSliceOffset,
+            });
+
+            // _brandRepo.UpdateBrand(id, dto);
+            if (dto.ImageUrls != null)
+            {
+                _urlRepo.UpdateBrandImageUrls(dto.ImageUrls);
+            }
+
             TempData["Message"] = "Changes saved!";
             return RedirectToAction("Index", new { id });
         }

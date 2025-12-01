@@ -1,4 +1,8 @@
 
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Models.DTOs;
+using Shotify.Models;
+
 namespace ViewModels;
 
 public class EditBrandViewModel
@@ -12,5 +16,7 @@ public class EditBrandViewModel
     //done
     public string? ProductCodeCutOffChar { get; set; }
     public int? ProductCodeSliceOffset { get; set; }
+    public List<BrandImageUrlDTO>? ImageUrls { get; set; }
+    public List<BrandImageUrlParam>? UrlParams { get; set; }
 
 }

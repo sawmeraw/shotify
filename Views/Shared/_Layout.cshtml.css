@@ -92,9 +92,10 @@
 
 #shotify-root .main-heading {
     font-size: 1.4rem;
-    font-weight: 700;
+    font-weight: 600;
     color: var(--primary-dark);
     margin-bottom: 20px;
+    margin: 0 auto;
 
     border-bottom: 2px solid var(--primary-accent);
     display: inline-block;

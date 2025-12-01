@@ -21,7 +21,7 @@
 
         </div>
         <div id="search-field" class=" d-flex-col gap-2">
-            <p id="selectedBrand" class="mb-4 fw-bold fs-5">Select a brand.</p>
+            <p id="selectedBrand" class="mb-4 fw-semibold fs-5">Select a brand</p>
             <input type="text" id="productCode" class="form-control mb-2 w-75" placeholder="Product code" required />
             <button type="button" id="searchBtn" class="btn btn-dark text-white">Search</button>
         </div>
@@ -30,14 +30,36 @@
 
     <div id="preview-container" class="d-flex-col gap-2">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2 class="fw-bold fs-5 mb-0">Preview</h2>
+            <h2 class="fw-semibold fs-5 mb-0">Preview</h2>
             <button class="btn btn-dark fw-bold rounded-md" onclick="downloadPreviewImages()">
                 Download
             </button>
         </div>
-        <div id="preview-images" class="d-flex gap-2 flex-wrap"></div>
+        <div id="preview-images" class="d-flex gap-2 flex-wrap">
+            <p class="text-muted mx-auto">Search to get started...</p>
+        </div>
     </div>
 </div>
+
+
+<div class="container-fluid mt-4 bg-white p-4 rounded shadow-sm d-flex gap-4 justify-content-between align-items-start">
+    <div class="px-2 flex-grow-1">
+        <h2 class="fs-4 fw-semibold mb-4">Tips</h2>
+        <p>Select the brand and paste the product code and click the Search button.</p>
+        <p>Download button will download all of the images at once.</p>
+
+        <div class="mt-4">
+            <h3 class="fs-5 fw-semibold mb-3">Managing brands</h3>
+            <ul class="list-styled">
+                <li class="mb-3">You can set brand configurations through the admin panel.</li>
+                <li class="mb-3">The set displayed on the preview can be downloaded as a zip file using the download
+                    button on the Preview.</li>
+                <li class="mb-3">Images can be added to the cargo and downloaded later as a whole.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
 
 
 @section Scripts {
@@ -54,14 +76,11 @@
         };
 
         $(function () {
-
             let searchBtn = $("#searchBtn");
-
             $("#option-container .option-btn-container button").on("click", function () {
                 $("#option-container .option-btn-container button").removeClass("selected");
 
                 $(this).addClass("selected");
-
                 let selectedText = $(this).html();
                 $("#selectedBrand").text(selectedText);
             })
@@ -76,7 +95,11 @@
                 } else {
                     let brandId = selectedBrandBtn.data("name");
                     let productCode = $("#productCode").val();
-                    searchImages(brandId, productCode);
+                    if (!productCode || productCode == "") {
+                        setPreviewState({ loading: false, error: "Please provide product code to search.", images: [] });
+                    } else {
+                        searchImages(brandId, productCode);
+                    }
                 }
             })
         })
@@ -101,19 +124,15 @@
             container.empty();
 
             if (window.App.preview.loading) {
-                container.html(`
-                                                                                                                        <div class="d-flex justify-content-center align-items-center" style="height:200px;">
-                                                                                                                            <div class="spinner-border text-info"></div>
-                                                                                                                        </div>
-                                                                                                                        `);
+                container.html(`<div class="d-flex justify-content-center align-items-center" style="height:100%; width:100%;"><div class="spinner-border text-info"></div></div>`);
             } else if (window.App.preview.error) {
-                container.html(`<div class='text-danger'>${window.App.preview.error}</div>`);
+                container.html(`<div class='text-muted mx-auto'>${window.App.preview.error}</div>`);
             } else if (window.App.preview.images.length > 0) {
                 window.App.preview.images.forEach(img => {
                     container.append(`<img src="${img}" class="preview-img" />`);
                 });
             } else {
-                container.html("<div class='text-muted'>No images found.</div>");
+                container.html("<div class='text-danger mx-auto'>No images found.</div>");
             }
         }
 

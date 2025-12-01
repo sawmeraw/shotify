@@ -13,25 +13,18 @@
 
 html {
     font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    position: relative;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
     html {
         font-size: 16px;
     }
-}
-
-/* .btn:focus,
-.btn:active:focus,
-.btn-link.nav-link:focus,
-.form-control:focus,
-.form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
-} */
-
-html {
-    position: relative;
-    min-height: 100%;
 }
 
 .form-floating > .form-control-plaintext::placeholder,
@@ -79,6 +72,7 @@ html {
     border-radius: 0.375rem;
     padding: 0.25rem;
     flex: 0.5;
+    align-self: flex-start;
 }
 
 #preview-container {
@@ -96,8 +90,8 @@ html {
     height: 100%;
     width: 100%;
     color: white;
-    font-size: 1.2rem;
-    font-weight: 500;
+    font-size: 1.1rem;
+    font-weight: 400;
     padding: 0 10px;
     background-color: rgba(0, 0, 0, 1);
     border-radius: 0.375rem;
@@ -113,8 +107,7 @@ html {
     width: 100%;
     display: flex;
     gap: 1rem;
-    /* padding: 15px; */
-    /* background: #ffffff; */
+    min-height: 600px;
 }
 
 #search-controller {
@@ -143,4 +136,21 @@ html {
     margin-bottom: 0.5rem;
     border-radius: 0.25rem;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#note-container {
+    width: 100%;
+}
+
+.custom-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 1.2px solid #333;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.custom-checkbox:checked {
+    background-color: #055e18;
+    border-color: #0056b3;
 }

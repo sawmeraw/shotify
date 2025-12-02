@@ -8,4 +8,5 @@ public interface IBrandImageUrlParamRepository
 {
     public List<BrandImageUrlParam> GetParams(int brandId);
     public void UpdateParams(List<BrandImageUrlParam> items);
+    public void CreateParams(List<CreateBrandImageUrlParamDTO> items);
 }

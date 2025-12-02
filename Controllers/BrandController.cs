@@ -89,6 +89,16 @@ namespace Shotify.Controllers
                 _paramRepo.UpdateParams(dto.UrlParams);
             }
 
+            if (dto.NewUrls != null && dto.NewUrls.Count != 0)
+            {
+                _urlRepo.CreateBrandImageUrls(dto.NewUrls);
+            }
+
+            if (dto.NewParams != null && dto.NewParams.Count != 0)
+            {
+                _paramRepo.CreateParams(dto.NewParams);
+            }
+
             TempData["Message"] = "Changes saved!";
             return RedirectToAction("Index", new { id });
         }

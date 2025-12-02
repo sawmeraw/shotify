@@ -72,65 +72,74 @@
         </div>
 
         <div class="mt-4">
-            <h3 class="fs-5 fw-semibold mb-3">Image URLs</h3>
-            @if (Model.ImageUrls != null && Model.ImageUrls.Any())
-            {
+            <div class="d-flex align-items-center gap-4 mb-3">
+                <h3 class="fs-5 fw-semibold">Image URLs</h3>
+                <button id="addUrlBtn" type="button" class="btn btn-success">
+                    + Add
+                </button>
+            </div>
 
-                <table class="table table-sm table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">Order</th>
-                            <th scope="col">Pattern</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+
+            <table class="table table-sm table-hover align-middle" id="urlsTable">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Pattern</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ImageUrls != null && Model.ImageUrls.Any())
+                    {
                         @Html.EditorFor(m => m.ImageUrls)
-                    </tbody>
-                </table>
-            }
-            else
-            {
-                <div class="mt-4 text-left">
-                    <p class="text-muted mb-3">No URLs set yet.</p>
-                    <button type="button" class="btn btn-success" onclick="addURL()">
-                        + Add
-                    </button>
-                </div>
-            }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="2" class="text-muted text-left">
+                                No URLs set yet.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
         </div>
         <div class="mt-4">
-            <h3 class="fs-5 fw-semibold mb-3">URL Parameters</h3>
-            @if (Model.UrlParams != null && Model.UrlParams.Any())
-            {
-                <table id="paramsTable" class="table table-sm table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th scope="col">Order</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Description</th>
-                            <th scope="col">Fixed Value</th>
-                            <th scope="col">Keep in Url?</th>
-                            <th scope="col">Placeholder</th>
-                            <th scope="col">Lowercase?</th>
-                            <th scope="col">Uppercase?</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="d-flex align-items-center gap-4 mb-3">
+                <h3 class="fs-5 fw-semibold">URL Parameters</h3>
+                <button id="addParamBtn" type="button" class="btn btn-success">
+                    + Add
+                </button>
+            </div>
+
+            <table id="paramsTable" class="table table-sm table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">Order</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Fixed Value</th>
+                        <th scope="col">Keep in Url?</th>
+                        <th scope="col">Placeholder</th>
+                        <th scope="col">Lowercase?</th>
+                        <th scope="col">Uppercase?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.UrlParams != null && Model.UrlParams.Any())
+                    {
                         @Html.EditorFor(m => m.UrlParams)
-                    </tbody>
-                </table>
-
-            }
-
-            else
-            {
-                <div class="mt-4 text-left">
-                    <p class="text-muted mb-3">No params set yet.</p>
-                    <button type="button" class="btn btn-success" onclick="addParam()">
-                        + Add
-                    </button>
-                </div>
-            }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="9" class="text-muted text-left">
+                                No params set yet.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
         </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
@@ -138,11 +147,90 @@
             <a asp-controller="Brand" asp-action="List" class="btn btn-secondary px-4">Cancel</a>
         </div>
     </form>
+
+    <div class="modal fade" id="rowsDialog" tabindex="-1" aria-labelledby="rowsDialogLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="rowsDialogLabel">Number of URLs</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="number" id="rowsInput" class="form-control" placeholder="Enter number of URLs"
+                        min="1" />
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="generateRowsBtn"
+                        data-bs-dismiss="modal">Generate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 @section Scripts {
     <script>
+        if (!window.App) {
+            window.App = {}
+        }
+
+        window.App.data = {
+            newUrlRows: 0,
+            newParamRows: 0
+        };
+
         $(function () {
+            $("#addUrlBtn").on("click", function () {
+                let index = window.App.data.newUrlRows;
+                generateUrlRow(index);
+                window.App.data.newUrlRows++;
+            });
+            $("#addParamBtn").on("click", function () {
+                let index = window.App.data.newParamRows;
+                generateParamRow(index);
+                window.App.data.newParamRows++;
+            });
+
+            function generateUrlRow(index) {
+                let $container = $("#urlsTable tbody");
+                let brandId = $("#Id").val();
+                $container.append(`<tr><input type="hidden" name="NewUrls[${index}].BrandId" value="${brandId}"><td class="col-1"><input type="number" name="NewUrls[${index}].Order" class="form-control form-control-sm" /></td><td class="col-10"><input type="text" name="NewUrls[${index}].Pattern" class="form-control form-control-sm" /></td></tr>`);
+            }
+
+            function generateParamRow(index) {
+                let $container = $("#paramsTable tbody");
+                let brandId = $("#Id").val();
+                $container.append(`<tr>
+                                                        <input type="hidden" name="NewParams[${index}].BrandId" value="${brandId}"/>
+                                                        <td class="col-1">
+                                                            <input type="text" name="NewParams[${index}].Order" class="form-control form-control-sm" />
+                                                        </td>
+                                                        <td class="col-1">
+                                                            <input type="text" name="NewParams[${index}].Name" class="form-control form-control-sm" />
+                                                        </td>
+                                                        <td class="col-1">
+                                                            <input type="text" name="NewParams[${index}].Description" class="form-control form-control-sm" />
+                                                        </td>
+                                                        <td class="col-1">
+                                                            <input type="text" name="NewParams[${index}].FixedValue" class="form-control form-control-sm" />
+                                                        </td>
+                                                        <td class="col-1 text-center">
+                                                            <input type="checkbox" name="NewParams[${index}].IsKeepInUrl" class="form-check-input custom-checkbox" />
+                                                        </td>
+                                                        <td class="col-1">
+                                                            <input type="text" name="NewParams[${index}].PlaceholderInUrl" class="form-control form-control-sm" />
+                                                        </td>
+                                                        <td class="col-1 text-center">
+                                                            <input type="checkbox" name="NewParams[${index}].IsAllLowerCase" class="form-check-input custom-checkbox" />
+                                                        </td>
+                                                        <td class="col-1 text-center">
+                                                            <input type="checkbox" name="NewParams[${index}].IsAllUpperCase" class="form-check-input custom-checkbox" />
+                                                        </td>
+                                                    </tr>`);
+            }
+
+
             function enforceConfigRules() {
                 let cutOffChar = $("#ProductCodeCutOffChar").val().trim();
                 let sliceOffset = $("#ProductCodeSliceOffset").val().trim();
@@ -175,13 +263,5 @@
             enforceConfigRules();
         })
 
-        function addRow() {
-            const paramsTBody = $("#paramsTable tbody");
-            paramsTBody.append(`<tr>
-                                                                            <td><input type="text" name="UrlParams[0].Name" class="form-control" /></td>
-                                                                            <td><input type="text" name="UrlParams[0].Description" class="form-control" /></td>
-                                                                            <td><input type="checkbox" name="UrlParams[0].IsKeepInUrl" /></td>
-                                                                          </tr>`)
-        }
     </script>
 }

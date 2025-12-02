@@ -47,7 +47,7 @@ public class BrandImageUrlRepository : IBrandImageUrlRepository
     {
         try
         {
-            var stmt = @"UPDATE BrandImageUrls SET ""Order"" = @Order, Pattern = @Pattern WHERE Id = @Id";
+            const string stmt = @"UPDATE BrandImageUrls SET ""Order"" = @Order, Pattern = @Pattern WHERE Id = @Id";
             foreach (var item in items)
             {
                 if (item != null)
@@ -60,6 +60,22 @@ public class BrandImageUrlRepository : IBrandImageUrlRepository
         {
             Console.WriteLine($"Caught error in BrandImageUrlRepository.UpdateBrandImageUrls: {e.Message}");
             throw new Exception("Error updating brand image urls");
+        }
+    }
+
+    public void CreateBrandImageUrls(List<CreateBrandImageUrlDTO> items)
+    {
+        try
+        {
+            const string stmt = @"
+            INSERT INTO BrandImageUrls (BrandId, [Order], Pattern)
+            VALUES (@BrandId, @Order, @Pattern);";
+            _conn.Execute(stmt, items);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Caught error in BrandImageUrlRepository.CreateBrandImageUrls: {e.Message}");
+            throw new Exception("Error occurred while creating image urls");
         }
     }
 }

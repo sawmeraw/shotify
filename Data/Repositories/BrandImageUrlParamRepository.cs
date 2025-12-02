@@ -47,4 +47,39 @@ public class BrandImageUrlParamRepository : IBrandImageUrlParamRepository
             throw new Exception("Error updating url params");
         }
     }
+
+    public void CreateParams(List<CreateBrandImageUrlParamDTO> items)
+    {
+        try
+        {
+            const string stmt = @"
+                INSERT INTO BrandImageUrlParams 
+                    (BrandId,
+                    Name,
+                    Description,
+                    [Order],
+                    FixedValue,
+                    IsKeepInUrl,
+                    IsAllLowerCase,
+                    IsAllUpperCase,
+                    PlaceholderInUrl)
+                VALUES
+                    (@BrandId,
+                    @Name,
+                    @Description,
+                    @Order,
+                    @FixedValue,
+                    @IsKeepInUrl,
+                    @IsAllLowerCase,
+                    @IsAllUpperCase,
+                    @PlaceholderInUrl);
+            ";
+            _conn.Execute(stmt, items);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"Caught error in BrandImageUrlParamRepository.CreateParams: {e.Message}");
+            throw new Exception("Error creating url params");
+        }
+    }
 }

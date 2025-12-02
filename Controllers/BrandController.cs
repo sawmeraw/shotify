@@ -3,6 +3,8 @@ using Shotify.Data;
 using ViewModels;
 using Shotify.Models.DTOs;
 using Shotify.Services;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json;
 
 
 namespace Shotify.Controllers
@@ -17,6 +19,13 @@ namespace Shotify.Controllers
             _brandRepo = brandRepo;
             _urlRepo = urlRepo;
             _paramRepo = paramRepo;
+        }
+
+        [Route("/admin/brands")]
+        [HttpGet]
+        public IActionResult List(int id)
+        {
+            return View();
         }
 
         [Route("/admin/brand/{id}")]
@@ -68,6 +77,7 @@ namespace Shotify.Controllers
                 ProductCodeSliceOffset = dto.ProductCodeSliceOffset,
             });
 
+            // Console.WriteLine($"Dto: {JsonSerializer.Serialize(dto).ToString()}");
             // _brandRepo.UpdateBrand(id, dto);
             if (dto.ImageUrls != null)
             {

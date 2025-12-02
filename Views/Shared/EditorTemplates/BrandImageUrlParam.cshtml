@@ -1,0 +1,28 @@
+@model BrandImageUrlParam;
+
+<tr>
+    <input asp-for="Id" type="hidden" />
+    <td class="col-1">
+        <input asp-for="Order" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1">
+        <input asp-for="Name" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1">
+        <input asp-for="Description" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1">
+        <input asp-for="FixedValue" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1 text-center">
+        <input asp-for="IsKeepInUrl" class="form-check-input custom-checkbox" />
+    </td>
+    <td class="col-1">
+        <input asp-for="PlaceholderInUrl" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1 text-center">
+        <input asp-for="IsAllLowerCase" class="form-check-input custom-checkbox" />
+    </td>
+    <td class="col-1 text-center">
+        <input asp-for="IsAllUpperCase" class="form-check-input custom-checkbox" />
+</tr>

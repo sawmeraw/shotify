@@ -7,17 +7,17 @@
 }
 
 <div class="container">
-    <form action="/admin/brand/@Model.Id" method="post">
+    <form asp-controller="Brand" asp-action="Edit" asp-route-id="@Model.Id" method="post">
 
         @if (TempData["Message"] != null)
         {
             <div class="alert alert-success">@TempData["Message"]</div>
         }
-        <input type="hidden" name="Id" value="@Model.Id" />
+        <input asp-for="Id" type="hidden" />
 
         <div class="mb-3">
             <label for="Name" class="form-label">Brand Name</label>
-            <input type="text" id="Name" name="Name" class="form-control" value="@Model.Name" required>
+            <input asp-for="Name" class="form-control">
         </div>
 
         <div class="row">
@@ -27,8 +27,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="ProductCodeCutOffChar" class="form-label">Code Cut-Off Character (Optional)</label>
-                    <input type="text" id="ProductCodeCutOffChar" name="ProductCodeCutOffChar" class="form-control"
-                        value="@Model.ProductCodeCutOffChar">
+                    <input asp-for="ProductCodeCutOffChar" class="form-control" />
                     <div class="form-text">
                         If set, everything *after* this character is ignored. E.g., `12345_color` becomes `12345`.
                     </div>
@@ -39,8 +38,7 @@
 
                 <div class="mb-3">
                     <label for="ProductCodeSliceOffset" class="form-label">Code Slice Offset (Optional)</label>
-                    <input type="number" id="ProductCodeSliceOffset" name="ProductCodeSliceOffset" class="form-control"
-                        value="@Model.ProductCodeSliceOffset">
+                    <input asp-for="ProductCodeSliceOffset" class="form-control" />
                     <div class="form-text">
                         If greater than zero, slices the code starting from this index. Useful for removing prefixes.
                     </div>
@@ -55,8 +53,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="ProductCodeDelimiterChar" class="form-label">Code Delimiter Character (Optional)</label>
-                    <input type="text" id="ProductCodeDelimiterChar" name="ProductCodeDelimiterChar"
-                        class="form-control" value="@Model.ProductCodeDelimiterChar">
+                    <input asp-for="ProductCodeDelimiterChar" class="form-control">
                     <div class="form-text">
                         Character used to split the product code into two parts.
                     </div>
@@ -66,8 +63,7 @@
             <div class="col-md-6">
                 <div class="mb-3">
                     <label for="ProductCodeDelimiterOffset" class="form-label">Delimiter Offset (Optional)</label>
-                    <input type="number" id="ProductCodeDelimiterOffset" name="ProductCodeDelimiterOffset"
-                        class="form-control" value="@Model.ProductCodeDelimiterOffset">
+                    <input asp-for="ProductCodeDelimiterOffset" class="form-control" />
                     <div class="form-text">
                         If a delimiter is used, this specifies which part (0-indexed) of the split code is the main ID.
                     </div>
@@ -75,10 +71,11 @@
             </div>
         </div>
 
-        @if (Model.ImageUrls != null && Model.ImageUrls.Any())
-        {
-            <div class="mt-4">
-                <h3 class="fs-5 fw-semibold mb-3">Image URLs</h3>
+        <div class="mt-4">
+            <h3 class="fs-5 fw-semibold mb-3">Image URLs</h3>
+            @if (Model.ImageUrls != null && Model.ImageUrls.Any())
+            {
+
                 <table class="table table-sm table-hover align-middle">
                     <thead class="table-light">
                         <tr>
@@ -87,35 +84,25 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.ImageUrls.Count; i++)
-                        {
-                            var url = Model.ImageUrls[i];
-                            <tr data-id="@url.Id">
-                                <td class="col-1">
-                                    <input type="number" class="form-control form-control-sm" name="ImageUrls[@i].Order"
-                                        value="@url.Order" min="1" />
-                                </td>
-                                <td class="col-10">
-                                    <input type="text" class="form-control form-control-sm" name="ImageUrls[@i].Pattern"
-                                        value="@url.Pattern" />
-                                </td>
-                                <input type="hidden" name="ImageUrls[@i].Id" value="@url.Id" />
-                            </tr>
-                        }
+                        @Html.EditorFor(m => m.ImageUrls)
                     </tbody>
                 </table>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted mt-4">No URLS set yet.</p>
-        }
-
-        @if (Model.UrlParams != null && Model.UrlParams.Any())
-        {
-            <div class="mt-4">
-                <h3 class="fs-5 fw-semibold mb-3">URL Parameters</h3>
-                <table class="table table-sm table-hover align-middle">
+            }
+            else
+            {
+                <div class="mt-4 text-left">
+                    <p class="text-muted mb-3">No URLs set yet.</p>
+                    <button type="button" class="btn btn-success" onclick="addURL()">
+                        + Add
+                    </button>
+                </div>
+            }
+        </div>
+        <div class="mt-4">
+            <h3 class="fs-5 fw-semibold mb-3">URL Parameters</h3>
+            @if (Model.UrlParams != null && Model.UrlParams.Any())
+            {
+                <table id="paramsTable" class="table table-sm table-hover align-middle">
                     <thead class="table-light">
                         <tr>
                             <th scope="col">Order</th>
@@ -129,52 +116,26 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.UrlParams.Count; i++)
-                        {
-                            var url = Model.UrlParams[i];
-                            <tr data-id="@url.Id">
-                                <input type="hidden" name="UrlParams[@i].Id" value="@url.Id" />
-                                <td class="col-1">
-                                    <input type="number" class="form-control form-control-sm" name="UrlParams[@i].Order"
-                                        value="@url.Order" min="1" />
-                                </td>
-                                <td class="col-1">
-                                    <input type="text" class="form-control form-control-sm" name="UrlParams[@i].Name"
-                                        value="@url.Name" />
-                                </td>
-                                <td class="col-1">
-                                    <input type="text" class="form-control form-control-sm" name="UrlParams[@i].Description"
-                                        value="@url.Description" />
-                                </td>
-                                <td class="col-1">
-                                    <input type="text" class="form-control form-control-sm" name="UrlParams[@i].FixedValue"
-                                        value="@url.FixedValue" />
-                                </td>
-                                <td class="col-1 text-center">
-                                    <input asp-for="UrlParams[@i].IsKeepInUrl" class="form-check-input custom-checkbox" />
-                                </td>
-                                <td class="col-1">
-                                    <input asp-for="UrlParams[@i].PlaceholderInUrl" class="form-control form-control-sm" />
-                                </td>
-                                <td class="col-1 text-center">
-                                    <input asp-for="UrlParams[@i].IsAllLowerCase" class="form-check-input custom-checkbox" />
-                                </td>
-                                <td class="col-1 text-center">
-                                    <input asp-for="UrlParams[@i].IsAllUpperCase" class="form-check-input custom-checkbox" />
-                            </tr>
-                        }
+                        @Html.EditorFor(m => m.UrlParams)
                     </tbody>
                 </table>
-            </div>
-        }
-        else
-        {
-            <p class="text-muted mt-4">No params set yet.</p>
-        }
+
+            }
+
+            else
+            {
+                <div class="mt-4 text-left">
+                    <p class="text-muted mb-3">No params set yet.</p>
+                    <button type="button" class="btn btn-success" onclick="addParam()">
+                        + Add
+                    </button>
+                </div>
+            }
+        </div>
 
         <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
             <button id="submitBtn" type="submit" class="btn btn-shotify-primary px-4">Save Changes</button>
-            <a href="/Admin/Brands" class="btn btn-secondary px-4">Cancel</a>
+            <a asp-controller="Brand" asp-action="List" class="btn btn-secondary px-4">Cancel</a>
         </div>
     </form>
 </div>
@@ -213,5 +174,14 @@
 
             enforceConfigRules();
         })
+
+        function addRow() {
+            const paramsTBody = $("#paramsTable tbody");
+            paramsTBody.append(`<tr>
+                                                                            <td><input type="text" name="UrlParams[0].Name" class="form-control" /></td>
+                                                                            <td><input type="text" name="UrlParams[0].Description" class="form-control" /></td>
+                                                                            <td><input type="checkbox" name="UrlParams[0].IsKeepInUrl" /></td>
+                                                                          </tr>`)
+        }
     </script>
 }

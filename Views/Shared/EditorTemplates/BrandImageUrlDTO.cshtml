@@ -1,0 +1,12 @@
+@using Models.DTOs
+@model BrandImageUrlDTO;
+
+<tr data-id="@Model.Id">
+    <td class="col-1">
+        <input asp-for="Order" class="form-control form-control-sm" />
+    </td>
+    <td class="col-10">
+        <input asp-for="Pattern" class="form-control form-control-sm" />
+    </td>
+    <input type="hidden" asp-for="Id" />
+</tr>

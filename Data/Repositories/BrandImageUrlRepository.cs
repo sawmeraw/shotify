@@ -39,7 +39,6 @@ public class BrandImageUrlRepository : IBrandImageUrlRepository
         {
             return null;
         }
-
         return patterns.ToList();
     }
 

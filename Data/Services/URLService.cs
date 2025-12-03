@@ -78,7 +78,7 @@ public class URLService : IURLService
             {
                 value = param.FixedValue;
             }
-            else if (i < parts.Length)
+            else if (i < currParams.Count)
             {
                 value = parts[i];
                 // Console.WriteLine($"Value here: {value}");

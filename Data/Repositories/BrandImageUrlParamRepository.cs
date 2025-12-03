@@ -18,7 +18,15 @@ public class BrandImageUrlParamRepository : IBrandImageUrlParamRepository
 
     public List<BrandImageUrlParam> GetParams(int brandId)
     {
-        var brandParams = _conn.Query<BrandImageUrlParam>("SELECT * FROM BrandImageUrlParams WHERE BrandId  = @BrandId ORDER BY \"Order\"", new { BrandId = brandId });
+        var brandParams = _conn.Query<BrandImageUrlParam>(@"SELECT *
+            FROM BrandImageUrlParams
+            WHERE BrandId = @BrandId
+            ORDER BY 
+                CASE 
+                    WHEN FixedValue IS NOT NULL AND IsKeepInUrl = 0 THEN 1
+                    ELSE 0
+                END;",
+                new { BrandId = brandId });
         return brandParams.ToList();
     }
 

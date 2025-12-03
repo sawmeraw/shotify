@@ -44,7 +44,7 @@
     <div id="preview-container" class="d-flex-col gap-2">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-semibold fs-5 mb-0">Preview</h2>
-            <button class="btn btn-dark fw-bold rounded-md" onclick="downloadPreviewImages()">
+            <button class="btn btn-dark fw-semibold rounded-md" onclick="downloadPreviewImages()">
                 Download
             </button>
         </div>
@@ -127,11 +127,33 @@
             setPreviewState({ loading: true, error: null, images: [] });
             try {
                 const response = await fetch(`/api/search?brandId=${encodeURIComponent(brandId)}&productCode=${encodeURIComponent(productCode)}`);
-                if (!response.ok) {
-                    throw new Error(`Oops! Something went wrong.`);
-                }
                 const data = await response.json();
-                setPreviewState({ loading: false, images: data, error: null });
+                if (!response.ok) {
+                    if (data.message && data.message != "") {
+                        setPreviewState({ loading: false, images: null, error: data.message });
+                        return;
+                    }
+                    setPreviewState({ loading: false, images: null, error: "Oops! Something went wrong." });
+                    return;
+                }
+
+                const results = await Promise.all(
+                    data.map(async (url) => {
+                        try {
+                            const res = await fetch(url, { method: "HEAD" });
+                            if (!res.ok) {
+                                throw new Error(`Bad status: ${res.status}`);
+                            }
+                            return url;
+                        } catch (err) {
+                            console.error(`Error checking ${url}:`, err);
+                            return null;
+                        }
+                    })
+                );
+
+                const validImages = results.filter(Boolean);
+                setPreviewState({ loading: false, images: validImages, error: null });
 
             } catch (error) {
                 setPreviewState({ loading: false, error: error.message });
@@ -145,7 +167,7 @@
             if (window.App.preview.loading) {
                 container.html(`<div class="d-flex justify-content-center align-items-center" style="height:100%; width:100%;"><div class="spinner-border text-info"></div></div>`);
             } else if (window.App.preview.error) {
-                container.html(`<div class='text-muted mx-auto'>${window.App.preview.error}</div>`);
+                container.html(`<div class='text-danger mx-auto'>${window.App.preview.error}</div>`);
             } else if (window.App.preview.images.length > 0) {
                 window.App.preview.images.forEach(img => {
                     container.append(`<img src="${img}" class="preview-img" />`);

@@ -25,6 +25,17 @@ namespace Shotify.Controllers
         {
             try
             {
+                var brand = _brandRepo.GetBrandById(brandId);
+                if (!string.IsNullOrEmpty(brand.ProductCodeDelimiterChar) || !string.IsNullOrEmpty(brand.ProductCodeCutOffChar))
+                {
+                    bool hasDelimiter = !string.IsNullOrEmpty(brand.ProductCodeDelimiterChar) && productCode.Contains(brand.ProductCodeDelimiterChar);
+                    bool hasCutOff = !string.IsNullOrEmpty(brand.ProductCodeCutOffChar) && productCode.Contains(brand.ProductCodeCutOffChar);
+
+                    if (!hasDelimiter && !hasCutOff)
+                    {
+                        return BadRequest(new ErrorResponse { Message = "Product code doesn't look right for the selected brand." });
+                    }
+                }
                 var urls = _urlService.GenerateImageUrls(brandId, productCode);
                 if (urls == null)
                 {
@@ -35,7 +46,7 @@ namespace Shotify.Controllers
             catch (Exception e)
             {
                 Console.WriteLine($"Error occurred: {e.Message}");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Oops! Something went wrong.");
+                return StatusCode(StatusCodes.Status500InternalServerError, new ErrorResponse { Message = "Oops! We ran into a server error!" });
             }
         }
 

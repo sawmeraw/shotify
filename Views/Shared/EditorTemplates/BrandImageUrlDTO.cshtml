@@ -1,12 +1,17 @@
 @using Models.DTOs
 @model BrandImageUrlDTO;
 
-<tr data-id="@Model.Id">
+<tr class="ui-state-default" data-id="@Model.Id">
     <td class="col-1">
-        <input asp-for="Order" class="form-control form-control-sm" />
+        <span class="drag-handle">
+            <svg fill="#636363" width="20" height="20" viewBox="0 0 1920 1920" xmlns="http://www.w3.org/2000/svg">
+            <path d="M600 1440c132.36 0 240 107.64 240 240s-107.64 240-240 240-240-107.64-240-240 107.64-240 240-240Zm720 0c132.36 0 240 107.64 240 240s-107.64 240-240 240-240-107.64-240-240 107.64-240 240-240ZM600 720c132.36 0 240 107.64 240 240s-107.64 240-240 240-240-107.64-240-240 107.64-240 240-240Zm720 0c132.36 0 240 107.64 240 240s-107.64 240-240 240-240-107.64-240-240 107.64-240 240-240ZM600 0c132.36 0 240 107.64 240 240S732.36 480 600 480 360 372.36 360 240 467.64 0 600 0Zm720 0c132.36 0 240 107.64 240 240s-107.64 240-240 240-240-107.64-240-240S1187.64 0 1320 0Z" fill-rule="evenodd"/>
+            </svg>
+        </span>
     </td>
-    <td class="col-10">
-        <input asp-for="Pattern" class="form-control form-control-sm" />
+    <td>
+        @Html.TextBoxFor(m => m.Pattern, new { @class = "form-control form-control-sm" })
     </td>
-    <input type="hidden" asp-for="Id" />
+    @Html.HiddenFor(m => m.Id)
+    @Html.HiddenFor(m => m.Order, new { @class = "order-field" })
 </tr>

@@ -34,7 +34,7 @@ namespace Shotify.Controllers
         {
             var brand = _brandRepo.GetBrandById(id);
             var brandImageUrls = _urlRepo.GetBrandImageUrlParams(id);
-            var brandUrlParms = _paramRepo.GetParams(id);
+            var brandUrlParms = _paramRepo.GetParams(id, false);
             var viewModel = new EditBrandViewModel
             {
                 Id = brand.Id,
@@ -60,7 +60,7 @@ namespace Shotify.Controllers
 
         [Route("/admin/brand/{id}")]
         [HttpPost]
-        public IActionResult Edit(int id, UpdateBrandDTO dto)
+        public IActionResult Save(int id, UpdateBrandDTO dto)
         {
             if (!ModelState.IsValid)
             {
@@ -77,8 +77,6 @@ namespace Shotify.Controllers
                 ProductCodeSliceOffset = dto.ProductCodeSliceOffset,
             });
 
-            // Console.WriteLine($"Dto: {JsonSerializer.Serialize(dto).ToString()}");
-            // _brandRepo.UpdateBrand(id, dto);
             if (dto.ImageUrls != null)
             {
                 _urlRepo.UpdateBrandImageUrls(dto.ImageUrls);

@@ -52,7 +52,7 @@ public class URLService : IURLService
 
         var dict = new Dictionary<string, string?>();
 
-        var currParams = _brandUrlParamRepo.GetParams(brandId);
+        var currParams = _brandUrlParamRepo.GetParams(brandId, true);
 
         if (currParams == null)
         {

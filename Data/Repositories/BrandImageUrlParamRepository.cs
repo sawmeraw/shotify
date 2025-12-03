@@ -16,17 +16,28 @@ public class BrandImageUrlParamRepository : IBrandImageUrlParamRepository
         _conn = conn;
     }
 
-    public List<BrandImageUrlParam> GetParams(int brandId)
+    public List<BrandImageUrlParam> GetParams(int brandId, bool sortByFixedValue)
     {
-        var brandParams = _conn.Query<BrandImageUrlParam>(@"SELECT *
+        string sql = @"
+            SELECT *
             FROM BrandImageUrlParams
             WHERE BrandId = @BrandId
-            ORDER BY 
+            ORDER BY ";
+
+        if (sortByFixedValue)
+        {
+            sql += @"
                 CASE 
                     WHEN FixedValue IS NOT NULL AND IsKeepInUrl = 0 THEN 1
                     ELSE 0
-                END;",
-                new { BrandId = brandId });
+                END";
+        }
+        else
+        {
+            sql += "[Order]";
+        }
+
+        var brandParams = _conn.Query<BrandImageUrlParam>(sql, new { BrandId = brandId });
         return brandParams.ToList();
     }
 

@@ -7,11 +7,11 @@
 }
 
 <div class="container">
-    <form asp-controller="Brand" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    <form asp-controller="Brand" asp-action="Save" asp-route-id="@Model.Id" method="post">
 
         @if (TempData["Message"] != null)
         {
-            <div class="alert alert-success">@TempData["Message"]</div>
+            <div class="alert alert-success mt-2">@TempData["Message"]</div>
         }
         <input asp-for="Id" type="hidden" />
 
@@ -83,11 +83,11 @@
             <table class="table table-sm table-hover align-middle" id="urlsTable">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">Order</th>
-                        <th scope="col">Pattern</th>
+                        <th scope="col"></th>
+                        <th scope="col">Patterns</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="url-sortable">
                     @if (Model.ImageUrls != null && Model.ImageUrls.Any())
                     {
                         @Html.EditorFor(m => m.ImageUrls)
@@ -115,7 +115,7 @@
             <table id="paramsTable" class="table table-sm table-hover align-middle">
                 <thead class="table-light">
                     <tr>
-                        <th scope="col">Order</th>
+                        <th scope="col"></th>
                         <th scope="col">Name</th>
                         <th scope="col">Description</th>
                         <th scope="col">Fixed Value</th>
@@ -125,7 +125,7 @@
                         <th scope="col">Uppercase?</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="params-sortable">
                     @if (Model.UrlParams != null && Model.UrlParams.Any())
                     {
                         @Html.EditorFor(m => m.UrlParams)
@@ -148,25 +148,6 @@
         </div>
     </form>
 
-    <div class="modal fade" id="rowsDialog" tabindex="-1" aria-labelledby="rowsDialogLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="rowsDialogLabel">Number of URLs</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <input type="number" id="rowsInput" class="form-control" placeholder="Enter number of URLs"
-                        min="1" />
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="generateRowsBtn"
-                        data-bs-dismiss="modal">Generate</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
 </div>
 
 @section Scripts {
@@ -181,6 +162,24 @@
         };
 
         $(function () {
+            $("#params-sortable, #url-sortable").sortable({
+                items: "tr",
+                handle: ".drag-handle",
+                helper: function (e, ui) {
+                    ui.children().each(function () {
+                        $(this).width($(this).width());
+                    });
+                    return ui;
+                },
+                update: function () {
+                    $("#params-sortable tr, #url-sortable tr").each(function (index) {
+                        const $field = $(this).find(".order-field");
+                        console.log("Row", index, "found", $field.length, "order-field(s)");
+                        $field.val(index + 1).attr("value", index + 1);
+                    });
+                }
+            }).disableSelection();
+
             $("#addUrlBtn").on("click", function () {
                 let index = window.App.data.newUrlRows;
                 generateUrlRow(index);
@@ -202,32 +201,35 @@
                 let $container = $("#paramsTable tbody");
                 let brandId = $("#Id").val();
                 $container.append(`<tr>
-                                                        <input type="hidden" name="NewParams[${index}].BrandId" value="${brandId}"/>
-                                                        <td class="col-1">
-                                                            <input type="text" name="NewParams[${index}].Order" class="form-control form-control-sm" />
-                                                        </td>
-                                                        <td class="col-1">
-                                                            <input type="text" name="NewParams[${index}].Name" class="form-control form-control-sm" />
-                                                        </td>
-                                                        <td class="col-1">
-                                                            <input type="text" name="NewParams[${index}].Description" class="form-control form-control-sm" />
-                                                        </td>
-                                                        <td class="col-1">
-                                                            <input type="text" name="NewParams[${index}].FixedValue" class="form-control form-control-sm" />
-                                                        </td>
-                                                        <td class="col-1 text-center">
-                                                            <input type="checkbox" name="NewParams[${index}].IsKeepInUrl" class="form-check-input custom-checkbox" />
-                                                        </td>
-                                                        <td class="col-1">
-                                                            <input type="text" name="NewParams[${index}].PlaceholderInUrl" class="form-control form-control-sm" />
-                                                        </td>
-                                                        <td class="col-1 text-center">
-                                                            <input type="checkbox" name="NewParams[${index}].IsAllLowerCase" class="form-check-input custom-checkbox" />
-                                                        </td>
-                                                        <td class="col-1 text-center">
-                                                            <input type="checkbox" name="NewParams[${index}].IsAllUpperCase" class="form-check-input custom-checkbox" />
-                                                        </td>
-                                                    </tr>`);
+    <input type="hidden" name="NewParams[${index}].BrandId" value="${brandId}"/>
+    <td class="col-1">
+    <input type="text" name="NewParams[${index}].Order" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1">
+    <input type="text" name="NewParams[${index}].Name" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1">
+    <input type="text" name="NewParams[${index}].Description" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1">
+    <input type="text" name="NewParams[${index}].FixedValue" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1 text-center">
+    <input type="checkbox" name="NewParams[${index}].IsKeepInUrl" class="form-check-input custom-checkbox" value="true" />
+    <input type="hidden" name="NewParams[${index}].IsKeepInUrl" class="form-check-input custom-checkbox" value="false" />
+    </td>
+    <td class="col-1">
+    <input type="text" name="NewParams[${index}].PlaceholderInUrl" class="form-control form-control-sm" />
+    </td>
+    <td class="col-1 text-center">
+    <input type="checkbox" name="NewParams[${index}].IsAllLowerCase" class="form-check-input custom-checkbox" value="true" />
+    <input type="hidden" name="NewParams[${index}].IsAllLowerCase" class="form-check-input custom-checkbox" value="false" />
+    </td>
+    <td class="col-1 text-center">
+    <input type="checkbox" name="NewParams[${index}].IsAllUpperCase" class="form-check-input custom-checkbox" value="true" />
+    <input type="hidden" name="NewParams[${index}].IsAllUpperCase" class="form-check-input custom-checkbox" value="false" />
+        </td>
+        </tr>`);
             }
 
 

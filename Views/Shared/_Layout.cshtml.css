@@ -38,7 +38,7 @@
 }
 
 #shotify-root .header {
-    background-color: rgba(214, 219, 220, 0.9);
+    background-color: var(--header-bg);
     color: #ffffff;
     padding: 10px 1vw;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
@@ -47,7 +47,6 @@
 
 #shotify-root .header-content {
     display: flex;
-    /* padding: 0 10%; */
     justify-content: space-between;
     align-items: center;
 }
@@ -59,7 +58,7 @@
 }
 
 #shotify-root .logo-shot {
-    color: #221616 !important;
+    color: var(--header-text) !important;
 }
 
 #shotify-root .logo-ify {
@@ -68,7 +67,7 @@
 }
 
 #shotify-root .nav-links a {
-    color: #221616 !important;
+    color: var(--header-text) !important;
     text-decoration: none !important;
     font-weight: 500;
     margin-left: 10px;
@@ -105,11 +104,11 @@
 }
 
 #shotify-root .footer {
-    background-color: #ffffff;
-    padding: 15px 0;
+    background-color: var(--header-bg);
+    padding: 10px 0;
     text-align: center;
     border-top: 1px solid var(--border-color);
-    font-size: 0.85rem;
-    color: #94a3b8;
+    font-size: 0.9rem;
+    color: var(--header-text);
     box-shadow: 0 -1px 3px 0 rgba(0, 0, 0, 0.05);
 }

@@ -9,6 +9,8 @@
     --max-width: 1800px;
     --form-bg: #f8fafc;
     --tw-bg-opacity: 1;
+    --header-bg: rgba(214, 219, 220, 0.9);
+    --header-text: #221616;
 }
 
 html {
@@ -47,7 +49,7 @@ html {
     border-radius: 0.2rem;
 }
 
-.form-control[type="text"] {
+.form-control[id="productCode"] {
     border-radius: 0.15rem;
     background-color: rgb(212 212 212 / var(--tw-bg-opacity));
 }
@@ -153,4 +155,13 @@ html {
 .custom-checkbox:checked {
     background-color: #055e18;
     border-color: #0056b3;
+}
+
+.drag-handle{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    cursor:move;
 }

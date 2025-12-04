@@ -5,6 +5,7 @@ using Shotify.Models.DTOs;
 using Shotify.Services;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
+using System.Text;
 
 
 namespace Shotify.Controllers
@@ -33,7 +34,7 @@ namespace Shotify.Controllers
         public IActionResult Index(int id)
         {
             var brand = _brandRepo.GetBrandById(id);
-            var brandImageUrls = _urlRepo.GetBrandImageUrlParams(id);
+            var brandImageUrls = _urlRepo.GetBrandImageUrls(id);
             var brandUrlParms = _paramRepo.GetParams(id, false);
             var viewModel = new EditBrandViewModel
             {
@@ -60,41 +61,42 @@ namespace Shotify.Controllers
 
         [Route("/admin/brand/{id}")]
         [HttpPost]
-        public IActionResult Save(int id, UpdateBrandDTO dto)
+        public IActionResult Save(int id, EditBrandViewModel payload)
         {
             if (!ModelState.IsValid)
             {
-                return BadRequest(ModelState);
+                return View("Index", payload);
+                
             }
 
             _brandRepo.UpdateBrand(id, new UpdateBrandDTO
             {
                 Id = id,
-                Name = dto.Name,
-                ProductCodeCutOffChar = dto.ProductCodeCutOffChar,
-                ProductCodeDelimiterChar = dto.ProductCodeDelimiterChar,
-                ProductCodeDelimiterOffset = dto.ProductCodeDelimiterOffset,
-                ProductCodeSliceOffset = dto.ProductCodeSliceOffset,
+                Name = payload.Name,
+                ProductCodeCutOffChar = payload.ProductCodeCutOffChar,
+                ProductCodeDelimiterChar = payload.ProductCodeDelimiterChar,
+                ProductCodeDelimiterOffset = payload.ProductCodeDelimiterOffset,
+                ProductCodeSliceOffset = payload.ProductCodeSliceOffset,
             });
 
-            if (dto.ImageUrls != null)
+            if (payload.ImageUrls != null)
             {
-                _urlRepo.UpdateBrandImageUrls(dto.ImageUrls);
+                _urlRepo.UpdateBrandImageUrls(payload.ImageUrls);
             }
 
-            if (dto.UrlParams != null)
+            if (payload.UrlParams != null)
             {
-                _paramRepo.UpdateParams(dto.UrlParams);
+                _paramRepo.UpdateParams(payload.UrlParams);
             }
 
-            if (dto.NewUrls != null && dto.NewUrls.Count != 0)
+            if (payload.NewUrls != null && payload.NewUrls.Count != 0)
             {
-                _urlRepo.CreateBrandImageUrls(dto.NewUrls);
+                _urlRepo.CreateBrandImageUrls(payload.NewUrls);
             }
 
-            if (dto.NewParams != null && dto.NewParams.Count != 0)
+            if (payload.NewParams != null && payload.NewParams.Count != 0)
             {
-                _paramRepo.CreateParams(dto.NewParams);
+                _paramRepo.CreateParams(payload.NewParams);
             }
 
             TempData["Message"] = "Changes saved!";

@@ -28,9 +28,9 @@ public class BrandImageUrlRepository : IBrandImageUrlRepository
         return patterns.ToList();
     }
 
-    public List<BrandImageUrlDTO>? GetBrandImageUrlParams(int brandId)
+    public List<BrandImageUrlReadDTO>? GetBrandImageUrls(int brandId)
     {
-        var patterns = _conn.Query<BrandImageUrlDTO>(
+        var patterns = _conn.Query<BrandImageUrlReadDTO>(
             "SELECT Id, \"Order\", Pattern FROM BrandImageUrls WHERE BrandId = @BrandId ORDER BY \"Order\"",
             new { BrandId = brandId }
         );
@@ -42,7 +42,7 @@ public class BrandImageUrlRepository : IBrandImageUrlRepository
         return patterns.ToList();
     }
 
-    public void UpdateBrandImageUrls(List<BrandImageUrlDTO> items)
+    public void UpdateBrandImageUrls(List<BrandImageUrlReadDTO> items)
     {
         try
         {
@@ -69,6 +69,13 @@ public class BrandImageUrlRepository : IBrandImageUrlRepository
             const string stmt = @"
             INSERT INTO BrandImageUrls (BrandId, [Order], Pattern)
             VALUES (@BrandId, @Order, @Pattern);";
+            bool hasOrder = items.Any(i => i.Order != null);
+
+            for(int i= 0; i<items.Count; i++)
+            {
+                items[i].Order = i+1;
+            }
+            
             _conn.Execute(stmt, items);
         }
         catch (Exception e)

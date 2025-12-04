@@ -13,11 +13,13 @@
         {
             <div class="alert alert-success mt-2">@TempData["Message"]</div>
         }
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <input asp-for="Id" type="hidden" />
 
         <div class="mb-3">
             <label for="Name" class="form-label">Brand Name</label>
             <input asp-for="Name" class="form-control">
+            <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         <div class="row">
@@ -194,7 +196,7 @@
             function generateUrlRow(index) {
                 let $container = $("#urlsTable tbody");
                 let brandId = $("#Id").val();
-                $container.append(`<tr><input type="hidden" name="NewUrls[${index}].BrandId" value="${brandId}"><td class="col-1"><input type="number" name="NewUrls[${index}].Order" class="form-control form-control-sm" /></td><td class="col-10"><input type="text" name="NewUrls[${index}].Pattern" class="form-control form-control-sm" /></td></tr>`);
+                $container.append(`<tr><input type="hidden" name="NewUrls[${index}].BrandId" value="${brandId}"><td class="col-1"></td><td class="col-10"><input type="text" name="NewUrls[${index}].Pattern" class="form-control form-control-sm" /></td></tr>`);
             }
 
             function generateParamRow(index) {
@@ -203,7 +205,7 @@
                 $container.append(`<tr>
     <input type="hidden" name="NewParams[${index}].BrandId" value="${brandId}"/>
     <td class="col-1">
-    <input type="text" name="NewParams[${index}].Order" class="form-control form-control-sm" />
+    
     </td>
     <td class="col-1">
     <input type="text" name="NewParams[${index}].Name" class="form-control form-control-sm" />

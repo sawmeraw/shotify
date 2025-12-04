@@ -1,5 +1,5 @@
 @using Models.DTOs
-@model BrandImageUrlDTO;
+@model BrandImageUrlReadDTO;
 
 <tr class="ui-state-default" data-id="@Model.Id">
     <td class="col-1">
@@ -10,7 +10,8 @@
         </span>
     </td>
     <td>
-        @Html.TextBoxFor(m => m.Pattern, new { @class = "form-control form-control-sm" })
+        <input asp-for="Pattern" class="form-control form-control-sm" />
+        <span asp-validation-for="Pattern" class="text-danger small"></span>
     </td>
     @Html.HiddenFor(m => m.Id)
     @Html.HiddenFor(m => m.Order, new { @class = "order-field" })

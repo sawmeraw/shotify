@@ -6,7 +6,7 @@ namespace Shotify.Services;
 public interface IBrandImageUrlRepository
 {
     public List<string>? GetPatterns(int brandId);
-    public List<BrandImageUrlDTO>? GetBrandImageUrlParams(int brandId);
-    public void UpdateBrandImageUrls(List<BrandImageUrlDTO> items);
+    public List<BrandImageUrlReadDTO>? GetBrandImageUrls(int brandId);
+    public void UpdateBrandImageUrls(List<BrandImageUrlReadDTO> items);
     public void CreateBrandImageUrls(List<CreateBrandImageUrlDTO> items);
 }

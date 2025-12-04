@@ -93,6 +93,11 @@ public class BrandImageUrlParamRepository : IBrandImageUrlParamRepository
                     @IsAllUpperCase,
                     @PlaceholderInUrl);
             ";
+
+            for(int i=0; i<items.Count; i++)
+            {
+                items[i].Order = i;
+            }
             _conn.Execute(stmt, items);
         }
         catch (Exception e)

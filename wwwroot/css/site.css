@@ -169,13 +169,18 @@ html {
 #crop-container{
     background-color: #ffffff;
     border-radius: 5px;
+    min-height: 100%;
 }
 
+#processed-preview-container{
+    background-color: #ffffff;
+    border-radius: 5px;
+    min-height: 600px;
+}
 #drop-zone {
     border: 3px dashed #ced4da;
     border-radius: 10px;
     height: 150px;
-    margin-left: 1rem;
     cursor: pointer;
     background-color: #f8f9fa;
     width: 80%;

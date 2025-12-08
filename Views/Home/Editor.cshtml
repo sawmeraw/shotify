@@ -3,10 +3,13 @@
     ViewData["PageHeading"] = "Crop Images";
 }
 
-<div class="mt-4" id="crop-container">
+<div class="mt-4 py-2 px-4" id="crop-container">
     <div class="row">
-        <div class="col-md-4 pt-4 ps-4">
-            <div id="drop-zone" class="d-flex justify-content-center align-items-center mb-3 px-2">
+        <div class="col-md-4">
+            <div class="fs-4 text-black fw-semibold">
+                <p>Crop images</p>
+            </div>
+            <div id="drop-zone" class="d-flex justify-content-center align-items-center mb-3">
                 <p class="text-muted">Drag & Drop Images or <span style="color: #00a8a0">Click Here</span></p>
             </div>
             
@@ -18,18 +21,18 @@
             </div>
         </div>
 
-        <div class="col-md-6 pt-4 ps-4">
-            <h3 class="medium">Image Preview</h3>
+        <div class="col-md-8 pt-4 px-4">
+            <p class="fs-4 text-black fw-semibold">Image Preview</p>
             <div id="initial-preview-container" class="preview-area mb-4">
                 <p class="text-muted text-center">No images dropped yet.</p>
             </div>
-
-            <h3 class="mt-4">Processed Images</h3>
-            <div id="processed-preview-container" class="preview-area processed-area">
-                <p class="text-muted text-center">Processed images will show up here.</p>
-            </div>
         </div>
     </div>
+</div>
+
+<div id="processed-preview-container" class="mt-2 px-4 py-2">
+    <h3 class="mt-2 fs-4 text-black">Processed Images</h3>
+    
 </div>
 
 @section Scripts{
@@ -52,14 +55,14 @@
 
         // 2. RENDERING FUNCTION
         function renderInitialPreviews() {
-            if (window.appState.fileURLs.length === 0) {
+            if (window.App.fileURLs.length === 0) {
                 $initialPreview.html('<p class="text-muted text-center">No images dropped yet.</p>');
                 $processBtn.prop('disabled', true);
                 return;
             }
 
             let html = '';
-            window.appState.fileURLs.forEach(url => {
+            window.App.fileURLs.forEach(url => {
                 html += `
                     <div class="image-preview-item" title="Click to view full image">
                         <img src="${url}" alt="Image Preview">
@@ -71,17 +74,17 @@
         }
 
         function handleFiles(files) {
-            window.appState.uploadedFiles = [];
-            window.appState.fileURLs = [];
+            window.App.uploadedFiles = [];
+            window.App.fileURLs = [];
 
             $.each(files, function(i, file) {
                 if (file.type === 'image/jpeg' || file.type === 'image/png') {
-                    window.appState.uploadedFiles.push(file);
+                    window.App.uploadedFiles.push(file);
                     
                     const reader = new FileReader();
                     reader.onload = function(e) {
-                        window.appState.fileURLs.push(e.target.result);
-                        if (window.appState.fileURLs.length === window.appState.uploadedFiles.length) {
+                        window.App.fileURLs.push(e.target.result);
+                        if (window.App.fileURLs.length === window.App.uploadedFiles.length) {
                             renderInitialPreviews();
                         }
                     };
@@ -91,7 +94,7 @@
                 }
             });
             
-            if (window.appState.uploadedFiles.length === 0) {
+            if (window.App.uploadedFiles.length === 0) {
                 renderInitialPreviews();
             }
         }
@@ -122,32 +125,32 @@
             $dropZone.on('drop', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+                console.log("drop triggered.");
                 $(this).removeClass('drag-over');
-
                 const files = e.originalEvent.dataTransfer.files;
                 handleFiles(files);
             });
 
             $clearBtn.on('click', function() {
-                window.appState.uploadedFiles = [];
-                window.appState.fileURLs = [];
+                window.App.uploadedFiles = [];
+                window.App.fileURLs = [];
                 $fileInput.val(''); // Clear file input value
                 $('#processed-preview-container').html('<p class="text-muted text-center">Processed images will show up here.</p>');
                 renderInitialPreviews();
             });
 
             $processBtn.on('click', function() {
-                if (window.appState.uploadedFiles.length === 0) {
+                if (window.App.uploadedFiles.length === 0) {
                     alert('Please upload images first!');
                     return;
                 }
                 
                 // --- DUMMY PROCESSING LOGIC START ---
-                console.log('Processing Images:', window.appState.uploadedFiles.map(f => f.name));
+                console.log('Processing Images:', window.App.uploadedFiles.map(f => f.name));
                 
                 // Simulate displaying processed images (for now, just reuse the initial previews)
                 let processedHtml = '<h5>Processed Successfully (Dummy)</h5>';
-                window.appState.fileURLs.forEach((url, index) => {
+                window.App.fileURLs.forEach((url, index) => {
                     processedHtml += `
                         <div class="image-preview-item">
                             <img src="${url}" alt="Processed Image ${index + 1}">
@@ -162,7 +165,7 @@
                 // --- DUMMY PROCESSING LOGIC END ---
                 
                 // NOTE: This is where you will eventually call your Preact/Vite bundle function.
-                // e.g., window.PreactCropperApp.processImages(window.appState.uploadedFiles);
+                // e.g., window.PreactCropperApp.processImages(window.App.uploadedFiles);
             });
         });
     </script>

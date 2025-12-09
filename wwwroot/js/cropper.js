@@ -1,4 +1,4 @@
-export const getBackgroundColor = (data: Uint8ClampedArray, canvasWidth: number) => {
+export const getBackgroundColor = (data, canvasWidth) => {
     const pixelIndex = 0;
     const r = data[pixelIndex];
     const g = data[pixelIndex + 1];
@@ -7,8 +7,7 @@ export const getBackgroundColor = (data: Uint8ClampedArray, canvasWidth: number)
     return { r, g, b };
 };
 
-// Process an image (crop, resize, etc.)
-export const processImage = async (file: File): Promise<File> => {
+export const processImage = async (file) => {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = URL.createObjectURL(file);
@@ -100,10 +99,10 @@ export const processImage = async (file: File): Promise<File> => {
 
 //return the top edge of the object in the image
 export const calculateTopPadding = (
-    data: Uint8ClampedArray,
-    canvasWidth: number,
-    canvasHeight: number,
-    backgroundColor: { r: number; g: number; b: number }
+    data,
+    canvasWidth,
+    canvasHeight,
+    backgroundColor
 ) => {
     for (let y = 0; y < canvasHeight; y++) {
         for (let x = 0; x < canvasWidth; x++) {
@@ -122,10 +121,10 @@ export const calculateTopPadding = (
 
 
 export const calculateBottomPadding = (
-    data: Uint8ClampedArray,
-    canvasWidth: number,
-    canvasHeight: number,
-    backgroundColor: { r: number; g: number; b: number }
+    data,
+    canvasWidth,
+    canvasHeight,
+    backgroundColor
 ) => {
     for (let y = canvasHeight - 1; y >= 0; y--) {
         for (let x = 0; x < canvasWidth; x++) {
@@ -144,10 +143,10 @@ export const calculateBottomPadding = (
 
 //find the edges on the sides of the object
 export const findEdges = (
-    data: Uint8ClampedArray,
-    canvasWidth: number,
-    canvasHeight: number,
-    backgroundColor: { r: number; g: number; b: number }
+    data,
+    canvasWidth,
+    canvasHeight,
+    backgroundColor
 ) => {
     let leftStart = canvasWidth;
     let rightEnd = 0;
@@ -165,15 +164,14 @@ export const findEdges = (
             }
         }
     }
-
     return { leftStart, rightEnd };
 };
 
-export const fileToDataUrl = (file: File): Promise<string> => {
+export const fileToDataUrl = (file) => {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = () => {
-            resolve(reader.result as string);
+            resolve(reader.result);
         };
         reader.onerror = () => {
             reject(new Error('Failed to read file'));

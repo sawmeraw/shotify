@@ -37,7 +37,9 @@
 
 @section Scripts{
 
-    <script>
+    <script type="module">
+        import {processImage, fileToDataUrl} from "/js/cropper.js";
+
         if (!window.App) {
             window.App = {}
         }

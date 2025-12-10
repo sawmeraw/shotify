@@ -5,9 +5,9 @@
 
 <div class="mt-4 py-2 px-4" id="crop-container">
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4 pt-4">
             <div class="fs-4 text-black fw-semibold">
-                <p>Crop images</p>
+                <p>Upload Images</p>
             </div>
             <div id="drop-zone" class="d-flex justify-content-center align-items-center mb-3">
                 <p class="text-muted">Drag & Drop Images or <span style="color: #00a8a0">Click Here</span></p>
@@ -30,15 +30,21 @@
     </div>
 </div>
 
-<div id="processed-preview-container" class="mt-2 px-4 py-2">
-    <h3 class="mt-2 fs-4 text-black">Processed Images</h3>
+<div id="edited-preview-container" class="mt-2 px-4 py-2">
+    <div class="d-flex gap-4">
+        <h3 class="mt-2 fs-4 text-black fw-semibold">Processed Images</h3>
+        <button id="processed-download-btn" class="btn btn-dark fw-semibold rounded-md py-1 px-3" disabled>Download</button>
+    </div>
+    <div id="processed-preview-container" class="mt-4">
+
+    </div>
     
 </div>
 
 @section Scripts{
 
     <script type="module">
-        import {processImage, fileToDataUrl} from "/js/cropper.js";
+        import {processImage, fileToDataUrl, randomString} from "/js/cropper.js";
 
         if (!window.App) {
             window.App = {}
@@ -46,13 +52,15 @@
 
         window.App = {
             uploadedFiles: [],
-            fileURLs: []
+            fileURLs: [],
+            processedFileUrls : []
         };
 
         const $dropZone = $('#drop-zone');
         const $fileInput = $('#file-input');
         const $initialPreview = $('#initial-preview-container');
         const $processBtn = $('#process-btn');
+        const $downloadBtn = $('#processed-download-btn');
         const $clearBtn = $('#clear-btn');
 
         // 2. RENDERING FUNCTION
@@ -101,6 +109,38 @@
             }
         }
 
+        async function processFiles(){
+            const processedFiles = await Promise.all(
+                window.App.uploadedFiles.map(async(file)=>{
+                    const processedImage = await processImage(file);
+                    return processedImage;
+                })
+            );
+
+            const processedImageUrls = await Promise.all(
+                processedFiles.map(async (file)=>{
+                    return await fileToDataUrl(file);
+                })
+            )
+
+            window.App.processedFileUrls = processedImageUrls;
+        }
+
+
+        function handleDownloadProcessedFiles(){
+            if(window.App.processedFileUrls.length == 0){
+                alert("No processed files to download.");
+            }
+
+            window.App.processedFileUrls.forEach((url, index)=>{
+                console.log(url);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = `shotify-${randomString(4)}.jpeg`;
+                link.click();
+            })
+        }
+
         $(document).ready(function() {
             $dropZone.on('click', function() {
                 $fileInput.click();
@@ -127,7 +167,6 @@
             $dropZone.on('drop', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                console.log("drop triggered.");
                 $(this).removeClass('drag-over');
                 const files = e.originalEvent.dataTransfer.files;
                 handleFiles(files);
@@ -136,29 +175,28 @@
             $clearBtn.on('click', function() {
                 window.App.uploadedFiles = [];
                 window.App.fileURLs = [];
-                $fileInput.val(''); // Clear file input value
+                $fileInput.val('');
                 $('#processed-preview-container').html('<p class="text-muted text-center">Processed images will show up here.</p>');
+                $downloadBtn.prop('disabled', true);
                 renderInitialPreviews();
             });
 
-            $processBtn.on('click', function() {
+            $downloadBtn.on('click', handleDownloadProcessedFiles);
+
+            $processBtn.on('click', async function() {
                 if (window.App.uploadedFiles.length === 0) {
                     alert('Please upload images first!');
                     return;
                 }
                 
-                // --- DUMMY PROCESSING LOGIC START ---
-                console.log('Processing Images:', window.App.uploadedFiles.map(f => f.name));
+                await processFiles();
+                $downloadBtn.prop('disabled', false);
                 
-                // Simulate displaying processed images (for now, just reuse the initial previews)
-                let processedHtml = '<h5>Processed Successfully (Dummy)</h5>';
-                window.App.fileURLs.forEach((url, index) => {
+                let processedHtml = '';
+                window.App.processedFileUrls.forEach((url, index) => {
                     processedHtml += `
                         <div class="image-preview-item">
                             <img src="${url}" alt="Processed Image ${index + 1}">
-                            <a href="${url}" download="processed-image-${index + 1}.png" class="btn btn-success btn-sm mt-1" style="position: absolute; bottom: 0; right: 0;">
-                                <i class="bi bi-download"></i> Download
-                            </a>
                         </div>
                     `;
                 });

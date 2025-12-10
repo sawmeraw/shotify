@@ -44,7 +44,7 @@
     <div id="preview-container" class="d-flex-col gap-2">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-semibold fs-5 mb-0">Preview</h2>
-            <button class="btn btn-dark fw-semibold rounded-md" onclick="downloadPreviewImages()">
+            <button class="btn btn-dark fw-semibold rounded-md" id="downloadBtn">
                 Download
             </button>
         </div>
@@ -76,7 +76,8 @@
 
 
 @section Scripts {
-    <script>
+    <script type="module">
+        import {previewImagesDownload} from "/js/cropper.js";
 
         if (!window.App) {
             window.App = {}
@@ -90,6 +91,16 @@
 
         $(function () {
             let searchBtn = $("#searchBtn");
+            let $downloadBtn = $("#downloadBtn");
+            let $productCode = $("#productCode").val();
+
+            $downloadBtn.on("click", async()=>{
+                try{
+                    await previewImagesDownload($productCode, window.App.preview.images);
+                } catch(error){
+                    console.error(error);
+                }
+            });
 
             $("#option-container .option-btn-container button").on("click", function () {
                 $("#option-container .option-btn-container button").removeClass("selected");
@@ -182,27 +193,11 @@
             renderPreview();
         }
 
-        async function downloadPreviewImages() {
-            let images = window.App.preview.images;
-            if (images.length > 0) {
-                for (const image of images) {
-                    try {
-                        const response = await fetch(image);
-                        const blob = await response.blob();
-                        const url = URL.createObjectURL(blob);
-
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = image.split("/").pop();
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
-
-                        URL.revokeObjectURL(url);
-                    } catch (err) {
-                        console.error("Error downloading:", image, err);
-                    }
-                }
+        async function downloadImages(){
+            try{
+                await previewImagesDownload(window.App.images);
+            } catch(error){
+                console.error(error);
             }
         }
 

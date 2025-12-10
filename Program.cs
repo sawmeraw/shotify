@@ -24,14 +24,14 @@ builder.Services.AddMvc()
     options.ViewLocationFormats.Add("Views/Admin/{1}/{0}.cshtml");
 });
 
-builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenLocalhost(5012);
-        options.ListenLocalhost(7012, listenOptions =>
-        {
-            listenOptions.UseHttps();
-        });
-});
+// builder.WebHost.ConfigureKestrel(options =>
+//     {
+//         options.ListenLocalhost(5012);
+//         options.ListenLocalhost(7012, listenOptions =>
+//         {
+//             listenOptions.UseHttps();
+//         });
+// });
 
 var app = builder.Build();
 

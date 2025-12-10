@@ -49,7 +49,7 @@ export const processImage = async (file) => {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = URL.createObjectURL(file);
-        console.log(file.type);
+        // console.log(file.type);
 
         img.onload = () => {
             const canvas = document.createElement('canvas');
@@ -212,7 +212,7 @@ export const findEdges = (
 ) => {
     let leftStart = canvasWidth;
     let rightEnd = 0;
-    //some tolerance for the 
+    //some tolerance for the transparency 
     const tolerance = 10;
 
     // console.log("Background color: ", backgroundColor.r, backgroundColor.g, backgroundColor.b);
@@ -240,7 +240,7 @@ export const findEdges = (
             }
         }
     }
-    console.log({leftStart, rightEnd});
+    // console.log({leftStart, rightEnd});
     return { leftStart, rightEnd };
 };
 

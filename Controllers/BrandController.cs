@@ -66,7 +66,6 @@ namespace Shotify.Controllers
             if (!ModelState.IsValid)
             {
                 return View("Index", payload);
-                
             }
 
             _brandRepo.UpdateBrand(id, new UpdateBrandDTO

@@ -8,7 +8,6 @@ namespace Shotify.Services;
 
 public class URLService : IURLService
 {
-
     private readonly IBrandRepository _brandRepo;
     private readonly IBrandImageUrlRepository _brandUrlRepo;
     private readonly IBrandImageUrlParamRepository _brandUrlParamRepo;

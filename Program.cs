@@ -1,19 +1,27 @@
 using System.Data;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Data.Sqlite;
+using Microsoft.IdentityModel.Tokens;
 using Shotify.Data;
 using Shotify.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var secretKey = Environment.GetEnvironmentVariable("JWT_SECRET_KEY");
-var key = System.Text.Encoding.ASCII.GetBytes(secretKey);
+if (string.IsNullOrEmpty(secretKey))
+{
+    throw new InvalidOperationException("JWT_SECRET_KEY environment variable is not set.");
+}
+
+var signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(secretKey));
 
 //add jwt for auth
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = "JwtBearer";
-    options.DefaultChallengeScheme = "JwtBearer";
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 })
-.AddJwtBearer("JwtBearer", options =>
+.AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
     {
@@ -21,7 +29,26 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new Microsoft.IdentityModel.Tokens.SymmetricSecurityKey(key)
+        IssuerSigningKey = signingKey,
+        ClockSkew = TimeSpan.Zero
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.ContainsKey("AuthToken"))
+            {
+                context.Token = context.Request.Cookies["AuthToken"];
+            }
+            return Task.CompletedTask;
+        },
+        OnChallenge = context =>
+        {
+            context.HandleResponse();
+            var returnUrl = context.Request.Path + context.Request.QueryString;
+            context.Response.Redirect($"/login?ReturnUrl={Uri.EscapeDataString(returnUrl)}");
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -45,14 +72,6 @@ builder.Services.AddControllersWithViews()
     options.PageViewLocationFormats.Add("Pages/{1}/{0}.cshtml");
 });
 
-// builder.WebHost.ConfigureKestrel(options =>
-//     {
-//         options.ListenLocalhost(5012);
-//         options.ListenLocalhost(7012, listenOptions =>
-//         {
-//             listenOptions.UseHttps();
-//         });
-// });
 
 var app = builder.Build();
 
@@ -66,15 +85,16 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-// app.UseMiddleware<LoginMiddleware>();
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 app.UseStaticFiles();
 
+//dont change this, it fucks shit up
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

@@ -9,7 +9,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "LOGIN": "rundna@",
-        "JWT_SECRET_KEY": "secretkey"
+        "JWT_SECRET_KEY": "2Q?7YO&P:>FZ^8y/?mN10G:h9b}tpb%rdEyIh[N4&<7"
       }
     },
     "https": {

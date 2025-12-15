@@ -1,10 +1,12 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Shotify.Data;
 using Shotify.Models;
 
 namespace Shotify.Controllers;
 
+[Authorize]
 public class HomeController : Controller
 {
     private readonly IBrandRepository _repo;
@@ -13,7 +15,7 @@ public class HomeController : Controller
     {
         _repo = repo;
     }
-    [Route("/")]
+    [Route("/", Name = "HomePage")]
     public IActionResult Index()
     {
         var brandList = _repo.GetBrandList();

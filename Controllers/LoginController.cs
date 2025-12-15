@@ -27,6 +27,28 @@ namespace Shotify.Controllers
         [Route("/login", Name = "Login")]
         public IActionResult Index(string? ReturnUrl = null)
         {
+            if(Request.Cookies.TryGetValue("AuthToken", out var incomingToken))
+            {
+                var handler = new JwtSecurityTokenHandler();
+                try
+                {
+                    var principal = handler.ValidateToken(incomingToken, new TokenValidationParameters
+                    {
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = _signingKey,
+                        ClockSkew = TimeSpan.Zero
+                    }, out _);
+
+                    return RedirectToRoute("HomePage");
+                }
+                catch (Exception)
+                {
+                    return RedirectToRoute("Login");
+                }
+            }
             return View(new LoginViewModel
             {
                 ReturnUrl = ReturnUrl,
@@ -37,6 +59,7 @@ namespace Shotify.Controllers
         [Route("/login")]
         public IActionResult Post(LoginViewModel dto, [FromQuery] string? ReturnUrl = null)
         {
+
             if (!ModelState.IsValid)
             {
                 return View("Login", dto);

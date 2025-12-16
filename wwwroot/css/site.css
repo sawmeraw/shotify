@@ -226,3 +226,36 @@ html {
 .processed-area {
     background-color: #fff3cd;
 }
+
+.card.bg-dark {
+    background-color: #2d3436 !important;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.table-dark {
+    --bs-table-bg: #2d3436;
+    --bs-table-hover-bg: #3b4244;
+}
+
+.table thead.table-light {
+    --bs-table-bg: #1e2122;
+    --bs-table-color: #b2bec3;
+    border-bottom: 1px solid #4a5153;
+}
+
+.table td {
+    padding: 1rem 0.75rem;
+    vertical-align: middle;
+    border-color: #4a5153;
+}
+
+.btn-outline-info {
+    color: #0dcaf0;
+    border-color: #0dcaf0;
+}
+
+.btn-outline-info:hover {
+    background-color: #0dcaf0;
+    color: #000;
+}

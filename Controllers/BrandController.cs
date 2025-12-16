@@ -22,11 +22,12 @@ namespace Shotify.Controllers
             _paramRepo = paramRepo;
         }
 
-        [Route("/admin/brands")]
+        [Route("/admin/brands", Name ="BrandList")]
         [HttpGet]
-        public IActionResult List(int id)
+        public IActionResult List([FromQuery] PaginationParams query)
         {
-            return View();
+            var brands = _brandRepo.GetBrandList();
+            return View(brands);
         }
 
         [Route("/admin/brand/{id}")]

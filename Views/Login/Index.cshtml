@@ -18,7 +18,7 @@
 
     <form asp-action="Post" asp-route-ReturnUrl="@Context.Request.Query["ReturnUrl"]">
         <div class="mb-4"> <label asp-for="Password" class="form-label">Password</label>
-            <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" />
+            <input asp-for="Password" value="@Model?.Password" class="form-control" type="password" placeholder="Enter your password" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
         

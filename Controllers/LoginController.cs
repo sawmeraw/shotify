@@ -62,13 +62,13 @@ namespace Shotify.Controllers
 
             if (!ModelState.IsValid)
             {
-                return View("Login", dto);
+                return View("Index", dto);
             }
 
             if(dto.Password != _storedPassword)
             {
                 dto.ErrorMessage = "Invalid Password";
-                return View("Login", dto);
+                return View("Index", dto);
             }
 
             var token = GenerateJwtToken();

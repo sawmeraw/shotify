@@ -9,22 +9,20 @@
 <div class="login-container">
     <h2 class="login-title">Welcome Back</h2>
 
-    @if(!string.IsNullOrEmpty(Model.ReturnUrl)){
-        <div class="error-message">You will be redirected after login.</div>
-    }
-
-    @if (!string.IsNullOrEmpty(Model?.ErrorMessage))
+    @if(!string.IsNullOrEmpty(Model.ReturnUrl) || !string.IsNullOrEmpty(Model?.ErrorMessage))
     {
-        <div class="error-message">@Model.ErrorMessage</div>
+        <div class="error-message">
+            @(Model?.ErrorMessage ?? "You will be redirected after login.")
+        </div>
     }
 
     <form asp-action="Post" asp-route-ReturnUrl="@Context.Request.Query["ReturnUrl"]">
-        <div class="mb-3">
-            <label asp-for="Password" class="form-label"></label>
-            <input asp-for="Password" class="form-control text-white" type="password" placeholder="Enter your password" />
+        <div class="mb-4"> <label asp-for="Password" class="form-label">Password</label>
+            <input asp-for="Password" class="form-control" type="password" placeholder="Enter your password" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
-        <button type="submit" class="btn btn-login">Login</button>
+        
+        <button type="submit" class="btn btn-login shadow-sm">Login</button>
     </form>
 </div>
 

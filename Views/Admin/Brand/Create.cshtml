@@ -1,0 +1,111 @@
+@model ViewModels.CreateBrandViewModel
+
+@{
+    ViewData["Title"] = "Add Brand";
+    ViewData["PageHeading"] = "Add New Brand";
+}
+
+<div class="container">
+    <form asp-controller="Brand" asp-action="Create" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="mb-3">
+            <label for="Name" class="form-label">Brand Name</label>
+            <input asp-for="Name" class="form-control">
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+
+        <div class="row">
+            <div id="errorRow1" class="text-danger fw-bold">
+                Only one of these is allowed.
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="ProductCodeCutOffChar" class="form-label">Code Cut-Off Character (Optional)</label>
+                    <input asp-for="ProductCodeCutOffChar" class="form-control" />
+                    <div class="form-text">
+                        If set, everything *after* this character is ignored. E.g., `12345_color` becomes `12345`.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="ProductCodeSliceOffset" class="form-label">Code Slice Offset (Optional)</label>
+                    <input asp-for="ProductCodeSliceOffset" class="form-control" />
+                    <div class="form-text">
+                        If greater than zero, slices the code starting from this index. Useful for removing prefixes.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div id="errorRow2" class="text-danger fw-bold">
+                Only one of these is allowed.
+            </div>
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="ProductCodeDelimiterChar" class="form-label">Code Delimiter Character (Optional)</label>
+                    <input asp-for="ProductCodeDelimiterChar" class="form-control">
+                    <div class="form-text">
+                        Character used to split the product code into two parts.
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label for="ProductCodeDelimiterOffset" class="form-label">Delimiter Offset (Optional)</label>
+                    <input asp-for="ProductCodeDelimiterOffset" class="form-control" />
+                    <div class="form-text">
+                        If a delimiter is used, this specifies which part (0-indexed) of the split code is the main ID.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+            <button id="submitBtn" type="submit" class="btn btn-shotify-primary px-4">Create Brand</button>
+            <a asp-controller="Brand" asp-action="List" class="btn btn-secondary px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            function enforceConfigRules() {
+                let cutOffChar = $("#ProductCodeCutOffChar").val().trim();
+                let sliceOffset = $("#ProductCodeSliceOffset").val().trim();
+                let delimChar = $("#ProductCodeDelimiterChar").val().trim();
+                let delimOffset = $("#ProductCodeDelimiterOffset").val().trim();
+
+                let errorRow1 = !!(cutOffChar && sliceOffset);
+                let errorRow2 = !!(delimChar && delimOffset);
+
+                if (errorRow1) {
+                    $("#errorRow1").stop(true, true).slideDown(200);
+                    $("#errorRow1").parent().addClass("bg-warning-subtle");
+                } else {
+                    $("#errorRow1").stop(true, true).slideUp(200);
+                    $("#errorRow1").parent().removeClass("bg-warning-subtle");
+                }
+
+                if (errorRow2) {
+                    $("#errorRow2").parent().addClass("bg-warning-subtle");
+                    $("#errorRow2").stop(true, true).slideDown(200);
+                } else {
+                    $("#errorRow2").stop(true, true).slideUp(200);
+                    $("#errorRow2").parent().removeClass("bg-warning-subtle");
+                }
+
+                $("#submitBtn").prop("disabled", errorRow1 || errorRow2);
+            }
+
+            $("#ProductCodeCutOffChar, #ProductCodeSliceOffset, #ProductCodeDelimiterChar, #ProductCodeDelimiterOffset").on("input blur", enforceConfigRules);
+
+            enforceConfigRules();
+        });
+    </script>
+}

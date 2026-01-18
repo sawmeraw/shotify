@@ -102,6 +102,35 @@ namespace Shotify.Controllers
             TempData["Message"] = "Changes saved!";
             return RedirectToAction("Index", new { id });
         }
+
+        [Route("/admin/brand/create", Name = "BrandCreate")]
+        [HttpGet]
+        public IActionResult Create()
+        {
+            return View(new CreateBrandViewModel());
+        }
+
+        [Route("/admin/brand/create")]
+        [HttpPost]
+        public IActionResult Create(CreateBrandViewModel payload)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(payload);
+            }
+
+            var newBrandId = _brandRepo.CreateBrand(new CreateBrandDTO
+            {
+                Name = payload.Name,
+                ProductCodeCutOffChar = payload.ProductCodeCutOffChar,
+                ProductCodeDelimiterChar = payload.ProductCodeDelimiterChar,
+                ProductCodeDelimiterOffset = payload.ProductCodeDelimiterOffset,
+                ProductCodeSliceOffset = payload.ProductCodeSliceOffset,
+            });
+
+            TempData["Message"] = "Brand created successfully!";
+            return RedirectToAction("Index", new { id = newBrandId });
+        }
     }
 
 }

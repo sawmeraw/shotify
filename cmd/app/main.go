@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	adidas "github.com/sawmeraw/goexcelparser/cmd/app/internal"
+	"github.com/sawmeraw/goexcelparser/cmd/app/internal/processor"
 )
 
 const DataDir = "files"
@@ -27,7 +27,14 @@ func ensureFile(name string, brand string) error {
 		}
 		switch clean {
 		case "adidas":
-			return adidas.Process(relativeFilePath)
+			processor, err := processor.NewAdidasProcessor(relativeFilePath)
+			if err != nil {
+				return fmt.Errorf("Error caught: %w", err)
+			}
+			_, err = processor.Parse()
+			if err != nil {
+				return fmt.Errorf("Error caught: %w", err)
+			}
 		default:
 			return fmt.Errorf("unsupported brand: %s", clean)
 		}

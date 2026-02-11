@@ -53,47 +53,89 @@ func (p *AdidasProcessor) Close() error {
 func (p *AdidasProcessor) Parse() ([]model.ProductData, error) {
 	var data []model.ProductData
 
-	productCodes, err := p.getUnqiueProductCodes()
+	data, err := p.getProductData()
 	if err != nil {
 		return data, fmt.Errorf("Error caught: %w", err)
 	}
 
-	for _, code := range productCodes {
-		fmt.Printf("Product Code found: %s\n", code)
+	for _, d := range data {
+		fmt.Println(d)
+		fmt.Println("-------")
 	}
 	return data, nil
 }
 
 // this works dont touch it
-func (p *AdidasProcessor) getUnqiueProductCodes() ([]string, error) {
-	var codes []string
+func (p *AdidasProcessor) getProductData() ([]model.ProductData, error) {
+	var data []model.ProductData
 
 	sheetName := p.file.GetSheetName(p.metadataSheetIndex)
 
 	rows, err := p.file.GetRows(sheetName)
 
 	if err != nil {
-		return codes, fmt.Errorf("Error reading rows from the first sheet: %w", err)
+		return data, fmt.Errorf("Error reading rows from the first sheet: %w", err)
 	}
 
 	if len(rows) == 0 {
-		return codes, nil
+		return data, nil
 	}
 
-	colIndex := FindColumnIndex(rows[0], "Article No.")
-	if colIndex == -1 {
+	productCodeColIndex := FindColumnIndex(rows[0], "Article No.")
+	if productCodeColIndex == -1 {
 		return nil, fmt.Errorf("Column 'Article No.' not found")
 	}
 
-	seen := make(map[string]bool)
+	colorNameColIndex := FindColumnIndex(rows[0], "Colorway Name")
+	if colorNameColIndex == -1 {
+		return nil, fmt.Errorf("Column 'Colorway Name' not found")
+	}
+
+	baseColorColIndex := FindColumnIndex(rows[0], "B2B Base Color")
+	if baseColorColIndex == -1 {
+		return nil, fmt.Errorf("Column 'B2B Base Color' not found")
+	}
+
+	articleNameColIndex := FindColumnIndex(rows[0], "Article Name")
+	if articleNameColIndex == -1 {
+		return nil, fmt.Errorf("Column 'Article Name' not found")
+	}
+
+	genderColIndex := FindColumnIndex(rows[0], "B2B Gender Age")
+	if genderColIndex == -1 {
+		return nil, fmt.Errorf("Column 'B2B Gender Age' not found")
+	}
+
 	for _, row := range rows[1:] {
-		if colIndex < len(row) {
-			val := strings.TrimSpace(row[colIndex])
-			if val != "" && !seen[val] {
-				seen[val] = true
-				codes = append(codes, val)
+		if productCodeColIndex < len(row) {
+			productCode := strings.TrimSpace(row[productCodeColIndex])
+			colorName := strings.TrimSpace(row[colorNameColIndex])
+			baseColor := strings.TrimSpace(row[baseColorColIndex])
+			articleName := strings.TrimSpace(row[articleNameColIndex])
+			genderValue := strings.TrimSpace(row[genderColIndex])
+			var gender string
+			if genderValue == "WOMEN" {
+				gender = "W"
+			} else if genderValue == "MEN" {
+				gender = "M"
+			} else if genderValue == "UNISEX" {
+				gender = "U"
+			} else {
+				gender = "K"
 			}
+
+			currentProduct := model.ProductData{
+				BrandName:    "adidas",
+				SupplierCode: "ad",
+				ProductCode:  productCode,
+				ColorName:    colorName,
+				BaseColor:    baseColor,
+				ModelName:    articleName,
+				Gender:       gender,
+			}
+
+			data = append(data, currentProduct)
 		}
 	}
-	return codes, nil
+	return data, nil
 }

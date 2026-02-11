@@ -35,6 +35,7 @@ func ensureFile(name string, brand string) error {
 			if err != nil {
 				return fmt.Errorf("Error caught: %w", err)
 			}
+			defer processor.Close()
 		default:
 			return fmt.Errorf("unsupported brand: %s", clean)
 		}

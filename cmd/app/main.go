@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/sawmeraw/goexcelparser/cmd/app/internal/processor"
@@ -51,6 +52,8 @@ func ensureDir() error {
 }
 
 func main() {
+
+	fmt.Println("GOMAXPROCS =", runtime.GOMAXPROCS(0))
 
 	args := os.Args
 

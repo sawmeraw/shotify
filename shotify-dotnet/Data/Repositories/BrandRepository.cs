@@ -33,7 +33,7 @@ public class BrandRepository : IBrandRepository
     {
         try
         {
-            var result = _conn.Query<BrandListItemDTO>("SELECT Id, Name FROM Brands WHERE 1 = 1");
+            var result = _conn.Query<BrandListItemDTO>("SELECT Id, Name, IsDeleted FROM Brands");
             return result.ToList();
         }
         catch (Exception e)
@@ -68,6 +68,12 @@ public class BrandRepository : IBrandRepository
             Console.WriteLine($"Caught Error: {e.Message}");
             throw new Exception("Error occurred creating the new brand.");
         }
+    }
+
+    public void SetDeleted(int brandId, bool isDeleted)
+    {
+        _conn.Execute("UPDATE Brands SET IsDeleted = @IsDeleted WHERE Id = @Id",
+            new { Id = brandId, IsDeleted = isDeleted ? 1 : 0 });
     }
 
     public void UpdateBrand(int brandId, UpdateBrandDTO payload)

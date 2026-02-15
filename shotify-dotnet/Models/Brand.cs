@@ -15,5 +15,5 @@ public class Brand
     public int? ProductCodeSliceOffset { get; set; }
 
     public DateTime CreatedAt { get; set; }
-
+    public bool IsDeleted { get; set; }
 }

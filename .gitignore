@@ -56,3 +56,7 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+
+# Go
+GoExcelParser/*.exe
+GoExcelParser/files/rex_output.xlsx

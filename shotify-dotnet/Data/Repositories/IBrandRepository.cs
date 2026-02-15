@@ -11,4 +11,5 @@ public interface IBrandRepository
 
     public void UpdateBrand(int brandId, UpdateBrandDTO payload);
     public List<BrandListItemDTO> GetBrandList();
+    public void SetDeleted(int brandId, bool isDeleted);
 }

@@ -1,0 +1,89 @@
+@{
+    ViewData["Title"] = "Excel Parser";
+    ViewData["PageHeading"] = "Excel Parser";
+}
+
+<div class="mt-3">
+    <p>Upload an Excel or CSV file from a supported brand to generate a REX-formatted output file.</p>
+
+    <form id="parserForm" class="mt-4">
+        <div class="mb-3">
+            <label for="brandSelect" class="form-label fw-semibold">Brand</label>
+            <select id="brandSelect" class="form-select" style="max-width: 300px;" required>
+                <option value="" selected disabled>Select a brand</option>
+                <option value="adidas">Adidas</option>
+                <option value="nike">Nike</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label for="fileInput" class="form-label fw-semibold">File (.xlsx or .csv)</label>
+            <input type="file" id="fileInput" class="form-control" style="max-width: 400px;"
+                   accept=".xlsx,.csv" required />
+        </div>
+        <button type="submit" id="submitBtn" class="btn btn-dark">
+            Process File
+        </button>
+    </form>
+
+    <div id="statusMessage" class="mt-3" style="display:none;"></div>
+</div>
+
+@section Scripts {
+    <script>
+        $(function () {
+            $("#parserForm").on("submit", async function (e) {
+                e.preventDefault();
+
+                const brand = $("#brandSelect").val();
+                const fileInput = document.getElementById("fileInput");
+                const file = fileInput.files[0];
+                const $status = $("#statusMessage");
+                const $btn = $("#submitBtn");
+
+                if (!brand || !file) {
+                    $status.show().removeClass("text-success").addClass("text-danger")
+                        .text("Please select a brand and a file.");
+                    return;
+                }
+
+                $btn.prop("disabled", true).text("Processing...");
+                $status.show().removeClass("text-danger text-success").addClass("text-muted")
+                    .text("Uploading and processing file...");
+
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("brand", brand);
+
+                try {
+                    const response = await fetch("/api/excel-parser", {
+                        method: "POST",
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({ message: "Processing failed." }));
+                        throw new Error(err.message || "Processing failed.");
+                    }
+
+                    const blob = await response.blob();
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "rex_output.xlsx";
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+
+                    $status.removeClass("text-muted text-danger").addClass("text-success")
+                        .text("File processed successfully! Download started.");
+                } catch (error) {
+                    $status.removeClass("text-muted text-success").addClass("text-danger")
+                        .text(error.message);
+                } finally {
+                    $btn.prop("disabled", false).text("Process File");
+                }
+            });
+        });
+    </script>
+}

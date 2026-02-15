@@ -131,6 +131,24 @@ namespace Shotify.Controllers
             TempData["Message"] = "Brand created successfully!";
             return RedirectToAction("Index", new { id = newBrandId });
         }
+
+        [Route("/api/brand/{id}/delete")]
+        [HttpPost]
+        public IActionResult SoftDelete(int id)
+        {
+            _brandRepo.SetDeleted(id, true);
+            TempData["Message"] = "Brand deleted.";
+            return RedirectToAction("List");
+        }
+
+        [Route("/api/brand/{id}/restore")]
+        [HttpPost]
+        public IActionResult Restore(int id)
+        {
+            _brandRepo.SetDeleted(id, false);
+            TempData["Message"] = "Brand restored.";
+            return RedirectToAction("List");
+        }
     }
 
 }

@@ -94,9 +94,6 @@ func (p *AdidasProcessor) Parse() ([]model.ProductData, error) {
 		final = append(final, base)
 	}
 
-	for _, product := range final {
-		fmt.Println(product)
-	}
 	return final, nil
 }
 
@@ -154,7 +151,7 @@ func (p *AdidasProcessor) parseMetadata() (map[string]model.ProductData, error) 
 				gender = "W"
 			case "MEN":
 				gender = "M"
-			case "UNISEX":
+			case "MEN & WOMEN":
 				gender = "U"
 			default:
 				gender = "K"
@@ -231,7 +228,9 @@ func (p *AdidasProcessor) parseBarcodes() (map[string]map[string]string, error) 
 func normalizeSizes(s string) string {
 	size := strings.TrimSpace(s)
 
-	if strings.HasSuffix(size, "-") {
+	if strings.HasSuffix(size, "-K") {
+		size = strings.TrimSuffix(size, "-K") + "K"
+	} else if strings.HasSuffix(size, "-") {
 		size = strings.TrimSuffix(size, "-")
 		size = strings.TrimSpace(size)
 		size = size + ".5"

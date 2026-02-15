@@ -1,6 +1,8 @@
 using System.Data;
+using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.Sqlite;
 using Microsoft.IdentityModel.Tokens;
 using Shotify.Data;
@@ -73,7 +75,15 @@ builder.Services.AddControllersWithViews()
 });
 
 
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownProxies.Add(IPAddress.Loopback);
+});
+
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 if (!app.Environment.IsDevelopment())
 {
@@ -84,8 +94,6 @@ else
 {
     app.UseDeveloperExceptionPage();
 }
-
-app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthentication();

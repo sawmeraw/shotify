@@ -61,6 +61,7 @@ html {
     font-weight: 500;
     transition: all 0.2s ease;
 }
+
 .btn-shotify-primary:hover {
     background-color: var(--btn-hover) !important;
 }

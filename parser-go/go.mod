@@ -1,4 +1,4 @@
-module github.com/sawmeraw/goexcelparser
+module github.com/sawmeraw/shotify/parser-go
 
 go 1.24.5
 

@@ -26,6 +26,7 @@ jobs:
             -r linux-x64 \
             --self-contained true \
             -p:PublishSingleFile=true \
+            -p:StaticWebAssetsEnabled=false \
             -o release_dotnet
 
       # 3. Build Go Microservice

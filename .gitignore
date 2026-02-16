@@ -60,3 +60,6 @@ nunit-*.xml
 # Go
 GoExcelParser/*.exe
 GoExcelParser/files/rex_output.xlsx
+
+# Local-only files
+DEPLOY_LOCAL.md

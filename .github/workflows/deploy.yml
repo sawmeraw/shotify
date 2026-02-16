@@ -26,7 +26,7 @@ jobs:
             -r linux-x64 \
             --self-contained true \
             -p:PublishSingleFile=true \
-            -p:StaticWebAssetsEnabled=false \
+            -p:StaticWebAssetsEnabled=true \
             -o release_dotnet
 
       # 3. Build Go Microservice
@@ -47,9 +47,10 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "release_dotnet/,release_go/parser-go"
+          source: "release_dotnet/**,release_go/parser-go"
           target: "/tmp/shotify_deploy"
-          strip_components: 1
+          overwrite: true
+          rm: true
 
       # 5. Swap Binaries & Restart Services
       - name: Deploy & Restart

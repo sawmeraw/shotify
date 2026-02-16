@@ -40,6 +40,12 @@ public class HomeController : Controller
         return View();
     }
 
+    [Route("/about")]
+    public IActionResult About()
+    {
+        return View();
+    }
+
     [HttpPost]
     [Route("/api/parser")]
     public async Task<IActionResult> ProcessExcel(IFormFile file, [FromForm] string brand)

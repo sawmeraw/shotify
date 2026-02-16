@@ -1,16 +1,16 @@
 :root {
-    --primary-accent: #00a8a0;
-    --btn-primary: #2fa76b;
-    --btn-hover: #69c798;
-    --primary-dark: #1e293b;
-    --primary-light: #f0f4f8;
+    --primary-accent: #1a1a2e;
+    --btn-primary: #1a1a2e;
+    --btn-hover: #16213e;
+    --primary-dark: #1a1a2e;
+    --primary-light: #f8fafc;
     --text-color: #334155;
-    --border-color: #cbd5e1;
+    --border-color: #e2e8f0;
     --max-width: 1800px;
     --form-bg: #f8fafc;
     --tw-bg-opacity: 1;
-    --header-bg: rgba(214, 219, 220, 0.9);
-    --header-text: #221616;
+    --header-bg: #ffffff;
+    --header-text: #1a1a2e;
 }
 
 html {
@@ -56,14 +56,18 @@ html {
 
 .btn-shotify-primary {
     background-color: var(--btn-primary) !important;
-    border-color: var(--primary-accent) !important;
-    color: var(--primary-light) !important;
-    font-weight: 500;
+    border-color: var(--btn-primary) !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    border-radius: 8px;
     transition: all 0.2s ease;
 }
 
 .btn-shotify-primary:hover {
     background-color: var(--btn-hover) !important;
+    border-color: var(--btn-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 26, 46, 0.2);
 }
 
 #option-container {
@@ -152,8 +156,8 @@ html {
 }
 
 .custom-checkbox:checked {
-    background-color: #055e18;
-    border-color: #0056b3;
+    background-color: #1a1a2e;
+    border-color: #1a1a2e;
 }
 
 .drag-handle{
@@ -256,4 +260,133 @@ html {
 
 .table-row-deleted {
     opacity: 0.55;
+}
+
+/* About Page */
+.about-page {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.about-hero {
+    text-align: center;
+    padding: 1.5rem 0 2rem;
+}
+
+.about-logo {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    letter-spacing: -1.5px;
+    margin-bottom: 0.25rem;
+}
+
+.about-tagline {
+    font-size: 1.05rem;
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+.about-github-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1.4rem;
+    background-color: #1a1a2e;
+    color: #fff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.about-github-btn:hover {
+    background-color: #16213e;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(26, 26, 46, 0.25);
+}
+
+.about-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.about-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    transition: border-color 0.2s ease;
+}
+
+.about-card:hover {
+    border-color: #94a3b8;
+}
+
+.about-card-icon {
+    margin-bottom: 0.75rem;
+}
+
+.about-card h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.about-card p {
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 0.75rem;
+}
+
+.about-tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.about-tech-tags span {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background-color: #f1f5f9;
+    color: #475569;
+    font-size: 0.72rem;
+    font-weight: 600;
+    border-radius: 4px;
+    letter-spacing: 0.02em;
+}
+
+.about-footer-text {
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.about-footer-text a {
+    color: #1a1a2e;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.about-footer-text a:hover {
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .about-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+    .about-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }

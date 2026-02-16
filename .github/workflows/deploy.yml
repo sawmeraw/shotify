@@ -46,7 +46,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "release_dotnet/Shotify,release_go/parser-go"
+          source: "release_dotnet/*,release_go/parser-go"
           target: "/tmp/shotify_deploy"
           strip_components: 1
 
@@ -67,7 +67,7 @@ jobs:
             sudo mkdir -p /var/www/parser
 
             # Move .NET binary
-            sudo mv /tmp/shotify_deploy/Shotify /var/www/shotify/Shotify
+            sudo cp -r /tmp/shotify_deploy/release_dotnet/* /var/www/shotify/
             sudo chmod +x /var/www/shotify/Shotify
 
             # Move Go binary

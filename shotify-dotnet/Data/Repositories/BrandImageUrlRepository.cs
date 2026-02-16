@@ -1,59 +1,60 @@
 using System;
-using System.Data;
-using Dapper;
 using Models.DTOs;
+using Shotify.Data;
 
 namespace Shotify.Services;
 
 public class BrandImageUrlRepository : IBrandImageUrlRepository
 {
-    private readonly IDbConnection _conn;
+    private readonly AppDbContext _db;
 
-    public BrandImageUrlRepository(IDbConnection conn)
+    public BrandImageUrlRepository(AppDbContext db)
     {
-        _conn = conn;
+        _db = db;
     }
+
     public List<string>? GetPatterns(int brandId)
     {
-        var patterns = _conn.Query<string>(
-            "SELECT Pattern FROM BrandImageUrls WHERE BrandId = @BrandId ORDER BY \"Order\"",
-            new { BrandId = brandId }
-        );
+        var patterns = _db.BrandImageUrls
+            .Where(u => u.BrandId == brandId)
+            .OrderBy(u => u.Order)
+            .Select(u => u.Pattern)
+            .ToList();
 
-        if (patterns == null)
-        {
-            return null;
-        }
-
-        return patterns.ToList();
+        return patterns.Count == 0 ? null : patterns;
     }
 
     public List<BrandImageUrlReadDTO>? GetBrandImageUrls(int brandId)
     {
-        var patterns = _conn.Query<BrandImageUrlReadDTO>(
-            "SELECT Id, \"Order\", Pattern FROM BrandImageUrls WHERE BrandId = @BrandId ORDER BY \"Order\"",
-            new { BrandId = brandId }
-        );
+        var patterns = _db.BrandImageUrls
+            .Where(u => u.BrandId == brandId)
+            .OrderBy(u => u.Order)
+            .Select(u => new BrandImageUrlReadDTO
+            {
+                Id = u.Id,
+                Order = u.Order,
+                Pattern = u.Pattern
+            })
+            .ToList();
 
-        if (patterns == null)
-        {
-            return null;
-        }
-        return patterns.ToList();
+        return patterns.Count == 0 ? null : patterns;
     }
 
     public void UpdateBrandImageUrls(List<BrandImageUrlReadDTO> items)
     {
         try
         {
-            const string stmt = @"UPDATE BrandImageUrls SET ""Order"" = @Order, Pattern = @Pattern WHERE Id = @Id";
             foreach (var item in items)
             {
-                if (item != null)
+                if (item == null) continue;
+                var entity = _db.BrandImageUrls.FirstOrDefault(u => u.Id == item.Id);
+                if (entity != null)
                 {
-                    _conn.Execute(stmt, item);
+                    entity.Order = item.Order ?? entity.Order;
+                    entity.Pattern = item.Pattern;
                 }
             }
+            _db.SaveChanges();
         }
         catch (Exception e)
         {
@@ -66,17 +67,20 @@ public class BrandImageUrlRepository : IBrandImageUrlRepository
     {
         try
         {
-            const string stmt = @"
-            INSERT INTO BrandImageUrls (BrandId, [Order], Pattern)
-            VALUES (@BrandId, @Order, @Pattern);";
-            bool hasOrder = items.Any(i => i.Order != null);
-
-            for(int i= 0; i<items.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
-                items[i].Order = i+1;
+                items[i].Order = i + 1;
             }
-            
-            _conn.Execute(stmt, items);
+
+            var entities = items.Select(item => new Shotify.Models.BrandImageUrl
+            {
+                BrandId = item.BrandId,
+                Order = item.Order ?? 0,
+                Pattern = item.Pattern
+            }).ToList();
+
+            _db.BrandImageUrls.AddRange(entities);
+            _db.SaveChanges();
         }
         catch (Exception e)
         {

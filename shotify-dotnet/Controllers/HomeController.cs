@@ -34,14 +34,14 @@ public class HomeController : Controller
         return View();
     }
 
-    [Route("/excel-parser")]
+    [Route("/parser")]
     public IActionResult ExcelParser()
     {
         return View();
     }
 
     [HttpPost]
-    [Route("/api/excel-parser")]
+    [Route("/api/parser")]
     public async Task<IActionResult> ProcessExcel(IFormFile file, [FromForm] string brand)
     {
         if (file == null || file.Length == 0)

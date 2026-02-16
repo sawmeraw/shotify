@@ -1,64 +1,55 @@
 using System;
-using System.Data;
-using Dapper;
 using Models.DTOs;
 using Shotify.Models;
-using SQLitePCL;
 
 namespace Shotify.Data;
 
 public class BrandImageUrlParamRepository : IBrandImageUrlParamRepository
 {
-    private readonly IDbConnection _conn;
+    private readonly AppDbContext _db;
 
-    public BrandImageUrlParamRepository(IDbConnection conn)
+    public BrandImageUrlParamRepository(AppDbContext db)
     {
-        _conn = conn;
+        _db = db;
     }
 
     public List<BrandImageUrlParam> GetParams(int brandId, bool sortByFixedValue)
     {
-        string sql = @"
-            SELECT *
-            FROM BrandImageUrlParams
-            WHERE BrandId = @BrandId
-            ORDER BY ";
+        var query = _db.BrandImageUrlParams.Where(p => p.BrandId == brandId);
 
         if (sortByFixedValue)
         {
-            sql += @"
-                CASE 
-                    WHEN FixedValue IS NOT NULL AND IsKeepInUrl = 0 THEN 1
-                    ELSE 0
-                END";
+            query = query.OrderBy(p =>
+                p.FixedValue != null && !p.IsKeepInUrl ? 1 : 0);
         }
         else
         {
-            sql += "[Order]";
+            query = query.OrderBy(p => p.Order);
         }
 
-        var brandParams = _conn.Query<BrandImageUrlParam>(sql, new { BrandId = brandId });
-        return brandParams.ToList();
+        return query.ToList();
     }
 
     public void UpdateParams(List<BrandImageUrlParam> items)
     {
         try
         {
-            const string stmt = @"
-                UPDATE BrandImageUrlParams
-                SET 
-                    Name           = @Name,
-                    Description    = @Description,
-                    [Order]        = @Order,
-                    FixedValue     = @FixedValue,
-                    IsKeepInUrl    = @IsKeepInUrl,
-                    IsAllLowerCase = @IsAllLowerCase,
-                    IsAllUpperCase = @IsAllUpperCase,
-                    PlaceholderInUrl = @PlaceholderInUrl
-                WHERE Id = @Id;
-            ";
-            _conn.Execute(stmt, items);
+            foreach (var item in items)
+            {
+                var entity = _db.BrandImageUrlParams.FirstOrDefault(p => p.Id == item.Id);
+                if (entity != null)
+                {
+                    entity.Name = item.Name;
+                    entity.Description = item.Description;
+                    entity.Order = item.Order;
+                    entity.FixedValue = item.FixedValue;
+                    entity.IsKeepInUrl = item.IsKeepInUrl;
+                    entity.IsAllLowerCase = item.IsAllLowerCase;
+                    entity.IsAllUpperCase = item.IsAllUpperCase;
+                    entity.PlaceholderInUrl = item.PlaceholderInUrl;
+                }
+            }
+            _db.SaveChanges();
         }
         catch (Exception e)
         {
@@ -71,34 +62,26 @@ public class BrandImageUrlParamRepository : IBrandImageUrlParamRepository
     {
         try
         {
-            const string stmt = @"
-                INSERT INTO BrandImageUrlParams 
-                    (BrandId,
-                    Name,
-                    Description,
-                    [Order],
-                    FixedValue,
-                    IsKeepInUrl,
-                    IsAllLowerCase,
-                    IsAllUpperCase,
-                    PlaceholderInUrl)
-                VALUES
-                    (@BrandId,
-                    @Name,
-                    @Description,
-                    @Order,
-                    @FixedValue,
-                    @IsKeepInUrl,
-                    @IsAllLowerCase,
-                    @IsAllUpperCase,
-                    @PlaceholderInUrl);
-            ";
-
-            for(int i=0; i<items.Count; i++)
+            for (int i = 0; i < items.Count; i++)
             {
                 items[i].Order = i;
             }
-            _conn.Execute(stmt, items);
+
+            var entities = items.Select(item => new BrandImageUrlParam
+            {
+                BrandId = item.BrandId,
+                Name = item.Name,
+                Description = item.Description,
+                Order = item.Order,
+                FixedValue = item.FixedValue,
+                IsKeepInUrl = item.IsKeepInUrl,
+                IsAllLowerCase = item.IsAllLowerCase,
+                IsAllUpperCase = item.IsAllUpperCase,
+                PlaceholderInUrl = item.PlaceholderInUrl
+            }).ToList();
+
+            _db.BrandImageUrlParams.AddRange(entities);
+            _db.SaveChanges();
         }
         catch (Exception e)
         {

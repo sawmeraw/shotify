@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace Shotify.Models;
 
@@ -10,4 +11,7 @@ public class ProductImage
     public string? ColorCode { get; set; }
     public string ImageUrl { get; set; }
     public DateTime FetchedAt { get; set; }
+
+    [JsonIgnore]
+    public Brand? Brand { get; set; }
 }

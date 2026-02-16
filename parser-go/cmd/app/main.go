@@ -8,9 +8,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/sawmeraw/goexcelparser/cmd/app/internal/processor"
-	"github.com/sawmeraw/goexcelparser/cmd/app/internal/server"
-	"github.com/sawmeraw/goexcelparser/cmd/app/internal/writer"
+	"github.com/sawmeraw/shotify/parser-go/cmd/app/internal/processor"
+	"github.com/sawmeraw/shotify/parser-go/cmd/app/internal/server"
+	"github.com/sawmeraw/shotify/parser-go/cmd/app/internal/writer"
 )
 
 const DataDir = "files"

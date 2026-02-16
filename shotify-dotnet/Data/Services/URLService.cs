@@ -1,6 +1,5 @@
 using System;
 using System.Data;
-using Dapper;
 using Shotify.Data;
 using Shotify.Models;
 

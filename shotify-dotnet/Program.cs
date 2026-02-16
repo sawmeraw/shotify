@@ -1,9 +1,8 @@
-using System.Data;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
-using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Shotify.Data;
 using Shotify.Services;
@@ -54,12 +53,9 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddScoped<IDbConnection>(x =>
-{
-    var connection = new SqliteConnection("Data Source = shotify.db");
-    connection.Open();
-    return connection;
-});
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 builder.Services.AddScoped<IBrandImageUrlRepository, BrandImageUrlRepository>();
 builder.Services.AddScoped<IBrandImageUrlParamRepository, BrandImageUrlParamRepository>();

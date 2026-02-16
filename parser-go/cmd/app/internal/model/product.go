@@ -9,6 +9,7 @@ type ProductData struct {
 	ProductCode  string
 	BaseColor    string
 	Gender       string
+	Season       string
 	//can be either shoe model or apparel name
 	ModelName string
 	ColorName string

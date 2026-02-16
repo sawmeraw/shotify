@@ -9,7 +9,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sawmeraw/goexcelparser/cmd/app/internal/model"
+	"github.com/sawmeraw/shotify/parser-go/cmd/app/internal/model"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -95,7 +95,6 @@ func buildExcelFile(products []model.ProductData) *excelize.File {
 			row++
 		}
 	}
-
 	return f
 }
 
@@ -117,13 +116,6 @@ func buildShortDescription(p model.ProductData, size string) string {
 	width := ""
 	if p.Width != nil {
 		width = fmt.Sprintf(" (%s)", *p.Width)
-	} else {
-		switch p.Gender {
-		case "M", "U":
-			width = " (D)"
-		case "W":
-			width = " (B)"
-		}
 	}
 	modelName := strings.ToUpper(p.ModelName)
 	for _, suffix := range []string{" M", " W", " K", " U"} {
@@ -136,8 +128,8 @@ func buildShortDescription(p model.ProductData, size string) string {
 	return fmt.Sprintf("%s %s %s (%s) %s SZ %s%s",
 		strings.ToUpper(p.BrandName),
 		strings.ToUpper(p.Gender),
-		modelName,
-		strings.ToUpper(p.BaseColor),
+		strings.ToUpper(p.ModelName),
+		strings.ToUpper(getColorCode(p.BrandName, p.ProductCode)),
 		strings.ReplaceAll(strings.ToUpper(p.ColorName), ".", ""),
 		size,
 		width,
@@ -151,4 +143,25 @@ func ExcelColumnName(n int) string {
 		n = n/26 - 1
 	}
 	return name
+}
+
+func getColorCode(brand, productCode string) string {
+	switch strings.ToLower(strings.TrimSpace(brand)) {
+	case "nike":
+		idx := strings.Index(productCode, "-")
+		if idx != -1 {
+			return strings.TrimSpace(productCode[idx+1:])
+		}
+		return productCode
+	case "adidas":
+		return productCode
+	case "asics":
+		idx := strings.LastIndex(productCode, ".")
+		if idx != -1 {
+			return strings.TrimSpace(productCode[idx+1:])
+		}
+		return productCode
+	default:
+		return productCode
+	}
 }

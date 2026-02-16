@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sawmeraw/goexcelparser/cmd/app/internal/model"
+	"github.com/sawmeraw/shotify/parser-go/cmd/app/internal/model"
 	"github.com/xuri/excelize/v2"
 )
 
@@ -158,7 +158,7 @@ func (p *AdidasProcessor) parseMetadata() (map[string]model.ProductData, error) 
 			}
 
 			currentProduct := model.ProductData{
-				BrandName:    "adidas",
+				BrandName:    "Adidas",
 				SupplierCode: "ad",
 				ProductCode:  productCode,
 				ColorName:    colorName,

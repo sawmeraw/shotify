@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/sawmeraw/goexcelparser/cmd/app/internal/model"
+	"github.com/sawmeraw/shotify/parser-go/cmd/app/internal/model"
 )
 
 type NikeProcessor struct {

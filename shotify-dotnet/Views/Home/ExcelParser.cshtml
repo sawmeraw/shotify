@@ -1,6 +1,6 @@
 @{
-    ViewData["Title"] = "Excel Parser";
-    ViewData["PageHeading"] = "Excel Parser";
+    ViewData["Title"] = "REX Template Generator";
+    ViewData["PageHeading"] = "REX Template Generator";
 }
 
 <div class="mt-3">
@@ -11,8 +11,11 @@
             <label for="brandSelect" class="form-label fw-semibold">Brand</label>
             <select id="brandSelect" class="form-select" style="max-width: 300px;" required>
                 <option value="" selected disabled>Select a brand</option>
-                <option value="adidas">Adidas</option>
-                <option value="nike">Nike</option>
+                <option value="adidas-b2b">Adidas Portal Export</option>
+                <option value="nike-b2b">Nike Portal Export</option>
+                <option value="asics-b2b">Asics B2B Export</option>
+                <option value="on">On</option>
+                <option value="newbalance-elastic">New Balance Elastic Export</option>
             </select>
         </div>
         <div class="mb-3">
@@ -55,7 +58,7 @@
                 formData.append("brand", brand);
 
                 try {
-                    const response = await fetch("/api/excel-parser", {
+                    const response = await fetch("/api/parser", {
                         method: "POST",
                         body: formData
                     });

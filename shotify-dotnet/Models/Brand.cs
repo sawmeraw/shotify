@@ -16,4 +16,8 @@ public class Brand
 
     public DateTime CreatedAt { get; set; }
     public bool IsDeleted { get; set; }
+
+    public List<BrandImageUrl> BrandImageUrls { get; set; } = [];
+    public List<BrandImageUrlParam> BrandImageUrlParams { get; set; } = [];
+    public List<ProductImage> ProductImages { get; set; } = [];
 }

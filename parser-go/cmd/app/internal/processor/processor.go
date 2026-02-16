@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/sawmeraw/goexcelparser/cmd/app/internal/model"
+	"github.com/sawmeraw/shotify/parser-go/cmd/app/internal/model"
 )
 
 type ProductProcessor interface {
@@ -14,10 +14,16 @@ type ProductProcessor interface {
 
 func New(filePath, brand string) (ProductProcessor, error) {
 	switch strings.ToLower(strings.TrimSpace(brand)) {
-	case "adidas":
+	case "adidas-b2b":
 		return NewAdidasProcessor(filePath)
-	case "nike":
+	case "nike-b2b":
 		return NewNikeProcessor(filePath)
+	case "asics-b2b":
+		return NewAsicsProcessor(filePath)
+	// case "on":
+	// 	return NewOnProcessor(filePath)
+	// case "newbalance-elastic":
+	// 	return NewNewBalanceProcessor(filePath)
 	default:
 		return nil, fmt.Errorf("unsupported brand: %s", brand)
 	}

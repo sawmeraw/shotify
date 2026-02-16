@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Shotify.Models;
 
@@ -24,5 +25,7 @@ public class BrandImageUrlParam
     [Required(ErrorMessage ="Required")]
     public string PlaceholderInUrl { get; set; }
 
+    [JsonIgnore]
+    public Brand? Brand { get; set; }
 }
 

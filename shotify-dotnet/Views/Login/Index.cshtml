@@ -7,21 +7,23 @@
 }
 
 <div class="login-container">
-    <h2 class="login-title">Welcome Back</h2>
+    <div class="login-brand">shotify</div>
+    <h2 class="login-title">Welcome back</h2>
 
-    @if(!string.IsNullOrEmpty(Model.ReturnUrl) || !string.IsNullOrEmpty(Model?.ErrorMessage))
+    @if(!string.IsNullOrEmpty(Model?.ErrorMessage))
     {
         <div class="error-message">
-            @(Model?.ErrorMessage ?? "You will be redirected after login.")
+            @Model.ErrorMessage
         </div>
     }
 
     <form asp-action="Post" asp-route-ReturnUrl="@Context.Request.Query["ReturnUrl"]">
-        <div class="mb-4"> <label asp-for="Password" class="form-label">Password</label>
+        <div class="mb-4">
+            <label asp-for="Password" class="form-label">Password</label>
             <input asp-for="Password" value="@Model?.Password" class="form-control" type="password" placeholder="Enter your password" />
             <span asp-validation-for="Password" class="text-danger"></span>
         </div>
-        
+
         <button type="submit" class="btn btn-login shadow-sm">Login</button>
     </form>
 </div>

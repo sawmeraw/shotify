@@ -1,7 +1,4 @@
 using System;
-using System.Data;
-using System.Data.SqlTypes;
-using Dapper;
 using Shotify.Models;
 using Shotify.Models.DTOs;
 
@@ -9,18 +6,20 @@ namespace Shotify.Data;
 
 public class BrandRepository : IBrandRepository
 {
-    private readonly IDbConnection _conn;
+    private readonly AppDbContext _db;
 
-    public BrandRepository(IDbConnection conn)
+    public BrandRepository(AppDbContext db)
     {
-        _conn = conn;
+        _db = db;
     }
 
     public Brand GetBrandById(int id)
     {
         try
         {
-            var brand = _conn.QuerySingle<Brand>("SELECT * FROM Brands WHERE Id = @Id", new { Id = id });
+            var brand = _db.Brands.FirstOrDefault(b => b.Id == id);
+            if (brand == null)
+                throw new Exception($"Brand with Id {id} not found.");
             return brand;
         }
         catch (Exception e)
@@ -33,8 +32,14 @@ public class BrandRepository : IBrandRepository
     {
         try
         {
-            var result = _conn.Query<BrandListItemDTO>("SELECT Id, Name, IsDeleted FROM Brands");
-            return result.ToList();
+            return _db.Brands
+                .Select(b => new BrandListItemDTO
+                {
+                    Id = b.Id,
+                    Name = b.Name,
+                    IsDeleted = b.IsDeleted
+                })
+                .ToList();
         }
         catch (Exception e)
         {
@@ -56,12 +61,9 @@ public class BrandRepository : IBrandRepository
                 ProductCodeSliceOffset = payload.ProductCodeSliceOffset
             };
 
-            var stmt = @"INSERT INTO Brands (Name, ProductCodeDelimiterChar, ProductCodeDelimiterOffset, ProductCodeCutOffChar, ProductCodeSliceOffset)
-                VALUES (@Name, @ProductCodeDelimiterChar, @ProductCodeDelimiterOffset, @ProductCodeCutOffChar, @ProductCodeSliceOffset);
-                SELECT last_insert_rowid();";
-
-            var id = _conn.ExecuteScalar<long>(stmt, brand);
-            return id;
+            _db.Brands.Add(brand);
+            _db.SaveChanges();
+            return brand.Id;
         }
         catch (Exception e)
         {
@@ -72,34 +74,29 @@ public class BrandRepository : IBrandRepository
 
     public void SetDeleted(int brandId, bool isDeleted)
     {
-        _conn.Execute("UPDATE Brands SET IsDeleted = @IsDeleted WHERE Id = @Id",
-            new { Id = brandId, IsDeleted = isDeleted ? 1 : 0 });
+        var brand = _db.Brands.FirstOrDefault(b => b.Id == brandId);
+        if (brand != null)
+        {
+            brand.IsDeleted = isDeleted;
+            _db.SaveChanges();
+        }
     }
 
     public void UpdateBrand(int brandId, UpdateBrandDTO payload)
     {
         try
         {
-            var stmt = @"
-                UPDATE Brands
-                SET Name = @Name,
-                    ProductCodeDelimiterChar = @ProductCodeDelimiterChar,
-                    ProductCodeDelimiterOffset = @ProductCodeDelimiterOffset,
-                    ProductCodeCutOffChar = @ProductCodeCutOffChar,
-                    ProductCodeSliceOffset = @ProductCodeSliceOffset
-                WHERE Id = @Id";
+            var brand = _db.Brands.FirstOrDefault(b => b.Id == brandId);
+            if (brand == null)
+                throw new Exception($"Brand with Id {brandId} not found.");
 
+            brand.Name = payload.Name;
+            brand.ProductCodeDelimiterChar = payload.ProductCodeDelimiterChar;
+            brand.ProductCodeDelimiterOffset = payload.ProductCodeDelimiterOffset;
+            brand.ProductCodeCutOffChar = payload.ProductCodeCutOffChar;
+            brand.ProductCodeSliceOffset = payload.ProductCodeSliceOffset;
 
-            _conn.Execute(stmt, new
-            {
-                Id = brandId,
-                payload.Name,
-                payload.ProductCodeDelimiterChar,
-                payload.ProductCodeDelimiterOffset,
-                payload.ProductCodeCutOffChar,
-                payload.ProductCodeSliceOffset
-            });
-
+            _db.SaveChanges();
         }
         catch (Exception e)
         {
@@ -107,5 +104,4 @@ public class BrandRepository : IBrandRepository
             throw new Exception("Error occurred updating brand details.");
         }
     }
-
 }

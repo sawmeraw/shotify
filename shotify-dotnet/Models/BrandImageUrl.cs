@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace Shotify.Models;
 
@@ -13,4 +14,6 @@ public class BrandImageUrl
     [Url(ErrorMessage = "Provide a valid url.")]
     public string Pattern { get; set; }
 
+    [JsonIgnore]
+    public Brand? Brand { get; set; }
 }

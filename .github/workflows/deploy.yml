@@ -46,7 +46,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "release_dotnet/*,release_go/parser-go"
+          source: "release_dotnet/,release_go/parser-go"
           target: "/tmp/shotify_deploy"
           strip_components: 1
 

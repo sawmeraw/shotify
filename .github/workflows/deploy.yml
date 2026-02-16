@@ -1,0 +1,84 @@
+name: Production Build & Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. Get the code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Build .NET WebApp
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build .NET WebApp
+        run: |
+          dotnet publish shotify-dotnet/Shotify.csproj \
+            -c Release \
+            -r linux-x64 \
+            --self-contained true \
+            -p:PublishSingleFile=true \
+            -o release_dotnet
+
+      # 3. Build Go Microservice
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+
+      - name: Build Go Parser
+        run: |
+          cd parser-go
+          GOOS=linux GOARCH=amd64 go build -o ../release_go/parser-go ./cmd/app
+
+      # 4. Transfer Binaries to VPS (Safe Transfer to Temp Folder)
+      - name: Copy Files to VPS
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "release_dotnet/Shotify,release_go/parser-go"
+          target: "/tmp/shotify_deploy"
+          strip_components: 1
+
+      # 5. Swap Binaries & Restart Services
+      - name: Deploy & Restart
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            # Stop services to release file locks
+            sudo systemctl stop shotify.service
+            sudo systemctl stop shotify-parser.service
+
+            # Ensure destination directories exist
+            sudo mkdir -p /var/www/shotify
+            sudo mkdir -p /var/www/parser
+
+            # Move .NET binary
+            sudo mv /tmp/shotify_deploy/Shotify /var/www/shotify/Shotify
+            sudo chmod +x /var/www/shotify/Shotify
+
+            # Move Go binary
+            sudo mv /tmp/shotify_deploy/parser-go /var/www/parser/parser-go
+            sudo chmod +x /var/www/parser/parser-go
+
+            # Clean up temp files
+            rm -rf /tmp/shotify_deploy
+
+            # Restart services
+            sudo systemctl start shotify.service
+            sudo systemctl start shotify-parser.service
+
+            echo "Deployment Complete"

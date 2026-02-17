@@ -46,7 +46,7 @@ namespace Shotify.Controllers
                 }
                 catch (Exception)
                 {
-                    return RedirectToRoute("Login");
+                    Response.Cookies.Delete("AuthToken");
                 }
             }
             return View(new LoginViewModel
@@ -78,7 +78,7 @@ namespace Shotify.Controllers
                 HttpOnly = true,
                 Secure = Request.IsHttps,
                 SameSite = SameSiteMode.Strict,
-                Expires = DateTimeOffset.UtcNow.AddHours(12)
+                Expires = DateTimeOffset.UtcNow.AddDays(7)
             });
             
             if(!string.IsNullOrEmpty(ReturnUrl) && Url.IsLocalUrl(ReturnUrl))
@@ -108,7 +108,7 @@ namespace Shotify.Controllers
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddHours(1),
+                Expires = DateTime.UtcNow.AddDays(7),
                 SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256Signature)
             };
 

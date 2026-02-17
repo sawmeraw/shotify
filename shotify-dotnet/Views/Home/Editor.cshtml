@@ -15,6 +15,11 @@
             
             <input type="file" id="file-input" accept="image/jpeg, image/png" multiple style="display: none;">
 
+            <div class="d-flex align-items-center gap-3 mb-3 ps-4">
+                <label for="padding-input" class="fw-semibold text-black mb-0">Padding (px):</label>
+                <input type="number" id="padding-input" class="form-control" style="width: 80px;" value="40" min="0" max="200">
+            </div>
+
             <div class="d-flex gap-4 mb-4 ps-4">
                 <button id="process-btn" class="btn btn-dark fw-semibold rounded-md" disabled>Process Images</button>
                 <button id="clear-btn" class="btn btn-dark fw-semibold rounded-md">Clear Preview</button>
@@ -110,9 +115,10 @@
         }
 
         async function processFiles(){
+            const padding = parseInt($('#padding-input').val(), 10) || 40;
             const processedFiles = await Promise.all(
                 window.App.uploadedFiles.map(async(file)=>{
-                    const processedImage = await processImage(file);
+                    const processedImage = await processImage(file, padding);
                     return processedImage;
                 })
             );

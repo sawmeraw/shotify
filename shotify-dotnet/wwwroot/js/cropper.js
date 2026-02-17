@@ -45,11 +45,12 @@ function getBackgroundColor(data, width, height) {
  */
 
 
-export const processImage = async (file) => {
+export const processImage = async (file, padding = 40) => {
+    const PADDING = padding;
+
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.src = URL.createObjectURL(file);
-        // console.log(file.type);
 
         img.onload = () => {
             const canvas = document.createElement('canvas');
@@ -59,41 +60,34 @@ export const processImage = async (file) => {
                 return;
             }
 
-            const maxWhitespace = 25;
-
             const canvasWidth = img.width;
             const canvasHeight = img.height;
             canvas.width = canvasWidth;
             canvas.height = canvasHeight;
-            // ctx.fillStyle = 'white'
-            // ctx.fillRect(0, 0, canvasWidth, canvasHeight)
             ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
 
-            //draw the image into the canvas
             const imageData = ctx.getImageData(0, 0, canvasWidth, canvasHeight);
             const data = imageData.data;
-            //get the background color from the image (just selects the )
             const backgroundColor = getBackgroundColor(data, canvasWidth, canvasHeight);
-            // console.log(`bgcolor: ${backgroundColor.r}, ${backgroundColor.g}, ${backgroundColor.b}`);
 
-            const topWhitespace = calculateTopPadding(data, canvasWidth, canvasHeight, backgroundColor);
-            const bottomWhitespace = calculateBottomPadding(data, canvasWidth, canvasHeight, backgroundColor);
+            // Find the content bounding box
+            const topEdge = calculateTopPadding(data, canvasWidth, canvasHeight, backgroundColor);
+            const bottomPadding = calculateBottomPadding(data, canvasWidth, canvasHeight, backgroundColor);
+            const bottomEdge = canvasHeight - bottomPadding;
             const { leftStart, rightEnd } = findEdges(data, canvasWidth, canvasHeight, backgroundColor);
 
-            const newTop = Math.max(0, topWhitespace - maxWhitespace);
-            const newBottom = Math.min(canvasHeight, canvasHeight - bottomWhitespace + maxWhitespace);
-            const newHeight = newBottom - newTop;
+            // Content dimensions
+            const contentWidth = rightEnd - leftStart + 1;
+            const contentHeight = bottomEdge - topEdge;
 
-            const adjustedLeftPadding = Math.max(0, leftStart - maxWhitespace);
-            // console.log("Canvas width: ", canvasWidth);
-            // console.log("Right end: ", rightEnd);
-            const adjustedRightPadding = Math.min(canvasWidth, rightEnd + maxWhitespace);
-            const newWidth = adjustedRightPadding - adjustedLeftPadding;
+            // Add desired padding, then make it square
+            const paddedWidth = contentWidth + PADDING * 2;
+            const paddedHeight = contentHeight + PADDING * 2;
+            const squareSize = Math.max(paddedWidth, paddedHeight);
 
-            const maxDimension = Math.max(newWidth, newHeight);
             const finalCanvas = document.createElement('canvas');
-            finalCanvas.width = maxDimension;
-            finalCanvas.height = maxDimension;
+            finalCanvas.width = squareSize;
+            finalCanvas.height = squareSize;
             const finalCtx = finalCanvas.getContext('2d');
 
             if (!finalCtx) {
@@ -101,22 +95,18 @@ export const processImage = async (file) => {
                 return;
             }
 
+            // Fill entire square with background color
             finalCtx.fillStyle = `rgb(${backgroundColor.r !== 0 ? backgroundColor.r : 255}, ${backgroundColor.g !== 0 ? backgroundColor.g : 255}, ${backgroundColor.b !== 0 ? backgroundColor.b : 255})`;
-            finalCtx.fillRect(0, 0, maxDimension, maxDimension);
+            finalCtx.fillRect(0, 0, squareSize, squareSize);
 
-            const x = (maxDimension - newWidth) / 2;
-            const y = (maxDimension - newHeight) / 2;
+            // Center the content in the square
+            const x = (squareSize - contentWidth) / 2;
+            const y = (squareSize - contentHeight) / 2;
 
             finalCtx.drawImage(
                 canvas,
-                adjustedLeftPadding,
-                newTop,
-                newWidth,
-                newHeight,
-                x,
-                y,
-                newWidth,
-                newHeight
+                leftStart, topEdge, contentWidth, contentHeight,
+                x, y, contentWidth, contentHeight
             );
 
             finalCanvas.toBlob((blob) => {
@@ -124,7 +114,6 @@ export const processImage = async (file) => {
                     reject(new Error('Failed to create blob'));
                     return;
                 }
-                //create a file from the blob with metadata
                 const processedFile = new File([blob], file.name, { type: 'image/jpeg' });
                 resolve(processedFile);
             }, 'image/jpeg');
@@ -149,19 +138,31 @@ export const calculateTopPadding = (
     canvasHeight,
     backgroundColor
 ) => {
+    const tolerance = 10;
+    // Minimum non-background pixels in a row to count as content
+    const minContentPixels = Math.max(3, Math.floor(canvasWidth * 0.005));
+
     for (let y = 0; y < canvasHeight; y++) {
+        let contentCount = 0;
         for (let x = 0; x < canvasWidth; x++) {
             const pixelIndex = (y * canvasWidth + x) * 4;
             const r = data[pixelIndex];
             const g = data[pixelIndex + 1];
             const b = data[pixelIndex + 2];
+            const a = data[pixelIndex + 3];
 
-            if (r !== backgroundColor.r || g !== backgroundColor.g || b !== backgroundColor.b) {
-                return y;
+            if (a === 0) continue;
+            if (
+                Math.abs(r - backgroundColor.r) > tolerance ||
+                Math.abs(g - backgroundColor.g) > tolerance ||
+                Math.abs(b - backgroundColor.b) > tolerance
+            ) {
+                contentCount++;
+                if (contentCount >= minContentPixels) return y;
             }
         }
     }
-    return canvasHeight; // If no padding found, return full height
+    return canvasHeight;
 };
 
 /**
@@ -179,15 +180,26 @@ export const calculateBottomPadding = (
     canvasHeight,
     backgroundColor
 ) => {
+    const tolerance = 10;
+    const minContentPixels = Math.max(3, Math.floor(canvasWidth * 0.005));
+
     for (let y = canvasHeight - 1; y >= 0; y--) {
+        let contentCount = 0;
         for (let x = 0; x < canvasWidth; x++) {
             const pixelIndex = (y * canvasWidth + x) * 4;
             const r = data[pixelIndex];
             const g = data[pixelIndex + 1];
             const b = data[pixelIndex + 2];
+            const a = data[pixelIndex + 3];
 
-            if (r !== backgroundColor.r || g !== backgroundColor.g || b !== backgroundColor.b) {
-                return canvasHeight - y - 1;
+            if (a === 0) continue;
+            if (
+                Math.abs(r - backgroundColor.r) > tolerance ||
+                Math.abs(g - backgroundColor.g) > tolerance ||
+                Math.abs(b - backgroundColor.b) > tolerance
+            ) {
+                contentCount++;
+                if (contentCount >= minContentPixels) return canvasHeight - y - 1;
             }
         }
     }

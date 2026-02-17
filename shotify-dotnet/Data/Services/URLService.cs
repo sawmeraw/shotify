@@ -57,6 +57,14 @@ public class URLService : IURLService
             throw new Exception("No parameters found on the URL to replace.");
         }
 
+        int expectedPartsCount = currParams.Count(p=> p.FixedValue == null || !p.IsKeepInUrl);
+        if (parts.Length < expectedPartsCount)
+        {
+            throw new Exception($"Not enough parts in the payload to replace all parameters. Expected at least {expectedPartsCount} parts, but got {parts.Length}.");
+        }
+
+        //keep track of how many parts have been used for params, so the final else if condition doesnt go out of bounds especially for Hoka URLs
+        int partIndex = 0;
         for (int i = 0; i < currParams.Count; i++)
         {
             var param = currParams[i];
@@ -70,6 +78,7 @@ public class URLService : IURLService
             }
             else if (param.PlaceholderInUrl == "[itemCode]")
             {
+                partIndex++;
                 value = parts.Length > 1 ? parts[0] : payload;
             }
             else if (!string.IsNullOrEmpty(param.FixedValue) && param.IsKeepInUrl)
@@ -78,7 +87,7 @@ public class URLService : IURLService
             }
             else if (i < currParams.Count)
             {
-                value = parts[i];
+                value = parts[partIndex];
                 // Console.WriteLine($"Value here: {value}");
             }
 
